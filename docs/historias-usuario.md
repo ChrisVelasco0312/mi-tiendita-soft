@@ -108,7 +108,3 @@
     - **Quiero** poder seleccionar la opción "Consultar ventas" dentro del módulo de Ventas,
     - **Para** poder ver el historial de ventas realizadas.
     - _(Nota: La interfaz de consulta de ventas no está detallada, pero la opción existe)._
-
----
-
-Estas historias de usuario deberían ser un buen punto de partida. Cada una puede ser una tarjeta en tu tablero Kanban. Para el desarrollo, cada historia podría desglosarse en tareas más pequeñas (ej: diseño de UI, desarrollo de backend, pruebas). ¡Espero que esto te sea útil!

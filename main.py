@@ -1,44 +1,15 @@
-from textual.app import App, ComposeResult
-from textual.screen import Screen
-from textual.containers import Vertical, Horizontal, Container
-from textual.widgets import Footer, Header, Button, Collapsible, Static
+from textual.app import App 
+from src.ui.home_view import HomeView
+from src.ui.stock_create_view import StockCreateView
+from src.ui.stock_manage_view import StockManageView
+from src.ui.create_sell_view import CreateSellView
+from src.ui.manage_sell_view import ManageSellView
 
 LAYOUT_CSS = '''
 Vertical {
     align: center middle;
 }
 '''
-
-class HomeView(Screen):
-    def compose(self) -> ComposeResult:
-        yield Header()
-        with Horizontal():
-            with Vertical(classes="column"):
-                with Collapsible(title='Inventario', collapsed=True):
-                    yield Button("Registro de Inventario", variant="primary", id="stock_register_button")
-                    yield Button("Consulta de Inventario", variant="primary", id="stock_consult_button")
-            with Vertical(classes="column"):
-                with Collapsible(title='Venta', collapsed=True):
-                    yield Button("Generar Venta", variant="primary", id="generate_sell_button")
-                    yield Button("Consultar Venta", variant="primary", id="get_sell_button")
-        yield Footer()
-
-    def on_button_pressed(self, event: Button.Pressed):
-        if event.button.id == "stock_register_button":
-            self.app.push_screen("stock_register_view")
-        elif event.button.id == "stock_consult_button":
-            print('Venta')
-
-class StockRegisterView(Screen):
-    def compose(self):
-        yield Container(
-            Static("Registrar producto"),
-            Button("Volver a inicio", id="go_home")
-        )
-    
-    def on_button_pressed(self, event: Button.Pressed):
-        if event.button.id == "go_home":
-            self.app.pop_screen()
 
 class MiTienditaApp(App):
     BINDINGS = [("d", "toggle_dark", "Togle dark mode")]
@@ -51,7 +22,10 @@ class MiTienditaApp(App):
 
     def on_mount(self):
         self.install_screen(HomeView(), name="home")
-        self.install_screen(StockRegisterView(), name="stock_register_view")
+        self.install_screen(StockCreateView(), name="stock_register_view")
+        self.install_screen(StockManageView(), name="stock_consult_view")
+        self.install_screen(CreateSellView(), name="create_sell_view")
+        self.install_screen(ManageSellView(), name="manage_sell_view")
         self.push_screen("home")
 
 if __name__ == "__main__":

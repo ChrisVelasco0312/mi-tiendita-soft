@@ -1,0 +1,25 @@
+[project]
+name = "mi-tiendita-soft"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "ChrisVelasco0312",email = "cristianvelasco0312@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0.0"
+dependencies = [
+    "textual (>=3.2.0,<4.0.0)"
+]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+run = "python main.py"
+i = "poetry install --no-root"
+
+[tool.poetry.group.dev.dependencies]
+poethepoet = "^0.34.0"
+

@@ -60,4 +60,4 @@ El `Makefile` contiene los siguientes scripts:
 - **Python**: Lenguaje de programación principal del proyecto.
 - **Textual**: Biblioteca utilizada para la interfaz del proyecto.
 - **Poetry**: Herramienta para la gestión de dependencias y empaquetado de Python.
-- **Nix**: Sistema de gestión de paquetes utilizado para configurar el entorno de desarrollo. 
+- **Nix**: Sistema de gestión de paquetes utilizado para configurar el entorno de desarrollo, solo relevante para usuarios de Nix o NixOS

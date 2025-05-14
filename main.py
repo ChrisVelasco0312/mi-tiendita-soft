@@ -4,6 +4,8 @@ from src.ui.stock_create_view import StockCreateView
 from src.ui.stock_manage_view import StockManageView
 from src.ui.create_sell_view import CreateSellView
 from src.ui.manage_sell_view import ManageSellView
+import sys
+print("sys.path", sys.path)
 
 LAYOUT_CSS = '''
 Vertical {

@@ -1,0 +1,13 @@
+Horizontal {
+  width: 100dw;
+}
+#title {
+  width: auto;
+}
+.back-button {
+  border: round;
+}
+.exit-button {
+  align: center middle;
+}
+

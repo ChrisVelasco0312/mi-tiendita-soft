@@ -6,11 +6,12 @@ authors = [
     {name = "ChrisVelasco0312",email = "cristianvelasco0312@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12,<4.0.0"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "textual (>=3.2.0,<4.0.0)",
     "pandas (>=2.2.3,<3.0.0)",
-    "openpyxl (>=3.1.5,<4.0.0)"
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "pyinstaller (>=6.13.0,<7.0.0)"
 ]
 package-mode = false
 

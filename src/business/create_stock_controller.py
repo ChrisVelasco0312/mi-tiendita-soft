@@ -3,6 +3,7 @@ from datetime import datetime
 
 from src.business.db_operations.create_database import create_database_file
 from src.business.db_operations.read_database import read_excel_data
+from src.business.db_operations.update_row_database import update_excel_row
 
 FILE_PATH = "src/business/data/product_stock_data.xlsx"
 
@@ -12,7 +13,10 @@ def initialiaze_operations():
     if os.path.exists(FILE_PATH):
         print(f"El archivo {FILE_PATH} existe")
         current_stock_data = read_excel_data(FILE_PATH, "ProductData")
-        print(current_stock_data)
+        updated_stock_data = update_excel_row(
+            current_stock_data, "AB_001", FILE_PATH, "ProductData"
+        )
+        print(updated_stock_data)
     else:
         # si no existe lo creamos de 0
         print(f"El archivo {FILE_PATH} no existe")

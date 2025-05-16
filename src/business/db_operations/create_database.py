@@ -1,17 +1,6 @@
-from datetime import date, datetime
-from typing import List, TypedDict
-
 import pandas as pd
 
-
-class ProductData(TypedDict):
-    item_code: List[str]
-    category: List[str]
-    product_name: List[str]
-    quantity: List[float]
-    purchase_price: List[int]
-    sale_price: List[int]
-    creation_date: List[date]
+from src.business.db_operations.classes import ProductData
 
 
 def create_database_file(filename: str, data: ProductData):

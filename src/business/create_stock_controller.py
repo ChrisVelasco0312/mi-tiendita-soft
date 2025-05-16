@@ -13,8 +13,22 @@ def initialiaze_operations():
     if os.path.exists(FILE_PATH):
         print(f"El archivo {FILE_PATH} existe")
         current_stock_data = read_excel_data(FILE_PATH, "ProductData")
+        # se preparan los datos a actualizar de 1 sola columna
+        updated_product_stock_data = {
+            # El item_code solo se usa para encontrar el registro
+            "item_code": "AB_001",
+            "category": ["Alimento y bebidas"],
+            "product_name": ["Arroz Doña Nieves 1k"],
+            "quantity": [20],
+            "purchase_price": [3500],
+            "sale_price": [4500],
+            "creation_date": [datetime.now()],
+        }
         updated_stock_data = update_excel_row(
-            current_stock_data, "AB_001", FILE_PATH, "ProductData"
+            current_stock_data,
+            FILE_PATH,
+            "ProductData",
+            updated_product_stock_data,
         )
         print(updated_stock_data)
     else:

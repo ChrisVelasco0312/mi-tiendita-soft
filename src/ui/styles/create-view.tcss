@@ -8,19 +8,15 @@ Taskbar {
 }
 
 #form {
- row-span: 14;
+ row-span: 13;
 }
 
 #create_product {
-  row-span: 2;
-}
-
-#status_message {
-  row-span: 1;
+  row-span: 3;
 }
 
 #output_message {
-  row-span: 1;
+  row-span: 2;
 }
 /* END LAYOUT */
 

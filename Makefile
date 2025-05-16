@@ -6,7 +6,7 @@ dev:
 	textual run --dev main.py
 serve:
 	textual serve main.py
-install:
+pinstall:
 	poetry install --no-root
 start:
 	START=1 nix develop

@@ -33,6 +33,9 @@
             python-with-lsp
             pkgs.poetry
             pkgs.python312Packages.textual
+            pkgs.python312Packages.textual-dev
+            pkgs.python312Packages.pandas
+            pkgs.python312Packages.openpyxl
           ];
 
           shellHook = ''

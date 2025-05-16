@@ -1,16 +1,32 @@
+/* LAYOUT */
 Grid {
-  grid-size: 1 6;
-  grid-rows: 1fr 1fr 1fr;
-  grid-columns: 1fr;
+  grid-size: 1 20;
 }
 
 Taskbar {
+  row-span: 2;
+}
+
+#form {
+ row-span: 14;
+}
+
+#create_product {
+  row-span: 2;
+}
+
+#status_message {
   row-span: 1;
 }
 
+#output_message {
+  row-span: 1;
+}
+/* END LAYOUT */
+
+
 .form {
   padding: 1 1 2 2;
-  row-span: 4;
 }
 
 .required-fields {
@@ -31,8 +47,9 @@ Taskbar {
 }
 
 .styled-output {
-  row-span: 2;
+  row-span: 1;
 }
+
 
 TextArea {
   height: 5;
@@ -40,4 +57,16 @@ TextArea {
 
 Input, Select, Button, TextArea {
   margin: 1;
+}
+
+#output_message {
+  overflow-y: auto;
+  margin: 0 2;
+  padding: 0 1;
+}
+
+#status_message {
+  border: dashed white;
+  margin: 0 2;
+  padding: 0 1;
 }

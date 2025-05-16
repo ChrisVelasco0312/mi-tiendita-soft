@@ -2,13 +2,14 @@
 """
 A simple interactive form example using Textual (simplified layout).
 """
+
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Static, Button, Input
-from textual.containers import VerticalScroll, Horizontal
+from textual.containers import Horizontal, VerticalScroll
 from textual.message import Message
 from textual.reactive import var
+from textual.widgets import Button, Footer, Header, Input, Static
 
-print('--- Preparing Textual App ---')
+print("--- Preparing Textual App ---")
 
 # Simplified CSS without Grid and without comments
 FORM_CSS = """
@@ -56,6 +57,7 @@ Input {
 }
 """
 
+
 class InteractiveFormApp(App):
     """A simple Textual form app."""
 
@@ -70,16 +72,16 @@ class InteractiveFormApp(App):
         with VerticalScroll(id="form-container"):
             yield Horizontal(
                 Static("Name:", classes="label"),
-                Input(placeholder="Your name", id="name_input")
+                Input(placeholder="Your name", id="name_input"),
             )
             yield Horizontal(
                 Static("Email:", classes="label"),
-                Input(placeholder="Your email", id="email_input")
+                Input(placeholder="Your email", id="email_input"),
             )
             yield Horizontal(
                 Button("Submit", variant="primary", id="submit_button"),
                 Button("Cancel", variant="error", id="cancel_button"),
-                id="button-row"
+                id="button-row",
             )
             yield Static(id="output_message", classes="output")
         yield Footer()
@@ -102,9 +104,12 @@ class InteractiveFormApp(App):
             email = email_input.value
 
             if name and email:
-                self.output_text = f"[b green]Submitted![/] Name: '{name}', Email: '{email}'"
+                self.output_text = (
+                    f"[b green]Submitted![/] Name: '{name}', Email: '{email}'"
+                )
             else:
                 self.output_text = "[b red]Error:[/b red] Please fill in both fields."
+
                 if not name:
                     name_input.focus()
                 else:
@@ -116,12 +121,15 @@ class InteractiveFormApp(App):
             self.output_text = "Form cancelled."
             self.query_one("#name_input").focus()
 
+
 # --- Main execution ---
+
 
 def main():
     """Runs the Textual app."""
     app = InteractiveFormApp()
     app.run()
+
 
 if __name__ == "__main__":
     main()

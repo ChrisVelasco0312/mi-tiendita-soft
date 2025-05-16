@@ -36,6 +36,7 @@
             pkgs.python312Packages.textual-dev
             pkgs.python312Packages.pandas
             pkgs.python312Packages.openpyxl
+            pkgs.python312Packages.pandas-stubs
           ];
 
           shellHook = ''

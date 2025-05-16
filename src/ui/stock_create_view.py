@@ -108,6 +108,7 @@ class StockCreateView(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        # capturamos todos los datos del producto para registrarlos
         if event.button.id == "create_product":
             output_widget = self.query_one("#output_message", Static)
             category = self.query_one("#category", Select).value

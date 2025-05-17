@@ -3,6 +3,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Input, Button, DataTable, Static
 from textual.containers import Container
 from src.business.create_stock_controller import read_stock  
+#Importamos read_stock de create_stock_controler
 
 
 class StockManageView(Screen):
@@ -22,14 +23,14 @@ class StockManageView(Screen):
     def on_mount(self):
         self.table = self.query_one("#inventory_table", DataTable)
         self.table.add_columns(
-            "Código", "Nombre", "Categoría", "Cantidad",
+            "Código", "Item", "Categoría", "Cantidad",
             "Precio Compra", "Precio Venta", "Creación"
         )
         self.load_data()
 
     def load_data(self, item_code: str = ""):
         #usamos read_stock para llamar los productos del archivo .xlsx
-        data = read_stock(item_code)  #usamos tu función real
+        data = read_stock(item_code)  
         self.table.clear()
         for _, row in data.iterrows():  
             self.table.add_row(

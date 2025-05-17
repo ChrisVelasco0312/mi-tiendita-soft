@@ -2,8 +2,7 @@ from textual.screen import Screen
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Input, Button, DataTable, Static
 from textual.containers import Container
-from src.business.create_stock_controller import read_stock  
-#Importamos read_stock de create_stock_controler
+from src.business.create_stock_controller import read_stock  #Importamos read_stock de create_stock_controler
 
 
 class StockManageView(Screen):
@@ -29,7 +28,7 @@ class StockManageView(Screen):
         self.load_data()
 
     def load_data(self, item_code: str = ""):
-        #usamos read_stock para llamar los productos del archivo .xlsx
+        #usamos read_stock para llamar los productos del archivo product_stock_data.xlsx
         data = read_stock(item_code)  
         self.table.clear()
         for _, row in data.iterrows():  
@@ -50,11 +49,11 @@ class StockManageView(Screen):
 
     def on_button_pressed(self, event):
         if event.button.id == "filter_button":
-        # Botno para filtrar los productos por medio de numero de item.
+            # Botno para filtrar los productos por medio de numero de item.
             item_code = self.query_one("#item_input", Input).value
             self.load_data(item_code)
         elif event.button.id == "back_button":
-        # Volver a la pantalla anterior o cerrar la pantalla actual
+            # Volver a la pantalla anterior o cerrar la pantalla actual
             self.app.pop_screen()
 
 

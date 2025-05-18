@@ -30,6 +30,15 @@ def read_stock(item_code: str):
     return read_excel_data(FILE_PATH, SHEET_NAME, item_code)
 
 
+def read_categories(path="product_stock_data.xlsx", sheet_name="categorias"):
+    try:
+        df = pd.read_excel(path, sheet_name=sheet_name)
+        return df["nombre"].dropna().tolist()
+    except Exception as e:
+        print(f"Error al leer categorías: {e}")
+        return ["Sin categoría"]
+
+
 def update_stock_product(updated_data):
     df_current_stock_data = read_excel_data(FILE_PATH, SHEET_NAME, "")
     # busca el producto por item y actualiza el registro con los datos

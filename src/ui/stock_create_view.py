@@ -4,15 +4,14 @@ from textual.reactive import reactive, var
 from textual.screen import Screen
 from textual.validation import Integer, Length, Regex, ValidationResult, Validator
 from textual.widgets import Button, Header, Input, Label, Select, Static, TextArea
+from src.business.create_stock_controller import create_stock_product, read_categories
 
 from src.ui.widgets.taskbar import Taskbar
 
 # TODO: esto debe ser reemplazado por las categorías registradas.
-CATEGORIES = [
-    "Categoría 1",
-    "Categoría 2",
-    "Categoría 3",
-]
+
+
+
 
 
 # validaciones personalizadas.
@@ -34,17 +33,21 @@ class StockCreateView(Screen):
     # variable reactiva para controlar el estado desabilitado del botón
     can_submit = reactive(False)
 
+    
+    
+
     def compose(self):
+
+        def categorias(self):
+            categorias = read_categories() or ["Sin categoría"]
+            print(f"Categorías cargadas: {categorias}")  # <- Esto debe verse en la terminal
+            return categorias
+
+        
         yield Header()
         yield Grid(
             Taskbar(),
             VerticalScroll(
-                Label("Selecciona una categoría", classes="styled-label"),
-                Select(
-                    ((category, category) for category in CATEGORIES),
-                    id="category",
-                    classes="styled-select",
-                ),
                 Static("Los campos cón * son obligatorios", classes="required-fields"),
                 Label("Código de item *", classes="styled-label"),
                 Input(
@@ -53,6 +56,17 @@ class StockCreateView(Screen):
                     classes="styled-input",
                     validators=[NotEmpty(), Length(minimum=3, maximum=10)],
                 ),
+                
+                # Pruebas de cargar categorias del documento excel.
+                Label("Selecciona una categoría", classes="styled-label"),
+                Select(
+                    ((categoria, categoria) for categoria in read_categories() or ["Sin categoría"]),
+                     id="categoria",  
+                     classes="styled-select",
+                ),
+
+                
+
                 Label("Nombre del producto *", classes="styled-label"),
                 Input(
                     id="product_name",
@@ -108,29 +122,48 @@ class StockCreateView(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        # capturamos todos los datos del producto para registrarlos
         if event.button.id == "create_product":
             output_widget = self.query_one("#output_message", Static)
+
+            # Captura los datos requeridos en el formulario.
             category = self.query_one("#category", Select).value
             item_code = self.query_one("#item_code", Input).value
             product_name = self.query_one("#product_name", Input).value
-            product_purchase_price = self.query_one(
-                "#product_purchase_price", Input
-            ).value
+            product_purchase_price = self.query_one("#product_purchase_price", Input).value
+            product_sale_price = self.query_one("#product_sale_price", Input).value
             product_quantity = self.query_one("#product_quantity", Input).value
             product_description = self.query_one("#product_description", TextArea).text
             product_provider = self.query_one("#product_provider", Input).value
-            if category and item_code and product_name and product_purchase_price:
-                self.output_text = f"""[b green]Enviado[/]
-                Categoría: {category}
-                Nombre del producto: {product_name}
-                Código de item: {item_code}
-                Precio de compra: {product_purchase_price}
-                Cantidad de existencia: {product_quantity}
-                Descripción: {product_description}
-                Proveedor: {product_provider}
-                """
-                output_widget.styles.border = ("ascii", "green")
+
+            # Se verifica que los campos requeridos estén.
+            if all([category, item_code, product_name, product_purchase_price, product_sale_price, product_quantity]):
+                try:
+                    # Creacion de un nuevo producto
+                    create_stock_product({
+                        "item_code": item_code,
+                        "product_name": product_name,
+                        "category": category,
+                        "purchase_price": float(product_purchase_price),
+                        "sale_price": float(product_sale_price),
+                        "quantity": int(product_quantity),
+                        "description": product_description,
+                        "provider": product_provider,
+                    })
+
+                    self.output_text = "[b green]Producto registrado correctamente.[/]"
+                    output_widget.styles.border = ("ascii", "green")
+
+                    # Opcional: limpiar los campos luego de registrar
+                    self.clear_form()
+
+                except ValueError as e:
+                    self.output_text = f"[b red]Error:[/] {str(e)}"
+                    output_widget.styles.border = ("ascii", "red")
+
+                except Exception as e:
+                    self.output_text = "[b red]Error:[/] No se pudo registrar el producto."
+                    log(str(e))
+                    output_widget.styles.border = ("ascii", "red")
             else:
                 self.output_text = (
                     "[b red]Error:[/] Porfavor diligencie todos los campos obligatorios"

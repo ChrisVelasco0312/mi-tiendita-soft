@@ -3,8 +3,15 @@ from textual.containers import Container, Vertical, Horizontal
 from textual.widgets import Static, Button, DataTable, Input
 from textual.reactive import reactive
 from textual import events
-import csv
+import csv, os
 from datetime import datetime
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils import get_column_letter
+
+
+# Ruta al archivo Excel en la carpeta "src/business/data"
+EXCEL_PATH = os.path.join("src", "business", "data", "product_stock_data.xlsx")
+
 
 # Datos de prueba para ventas
 PRODUCTOS = [
@@ -17,20 +24,16 @@ PRODUCTOS = [
 class CreateSellView(Screen):
     codigo = reactive("")
     cantidad = reactive("")
-    fecha_venta = reactive("")
     total = reactive("0")
     producto = reactive(None)
 
-    
     def compose(self):
         self.codigo_input = Input(placeholder="Código del ítem", id="codigo")
         self.cantidad_input = Input(placeholder="Cantidad a vender", id="cantidad")
         self.total_display = Static("Total a pagar: $0.00", id="total")
-        self.fecha_input = Input(placeholder="Fecha de venta (YYYY-MM-DD)", id="fecha")
         self.detalles_producto = Static("", id="detalles")
         self.mensaje_resultado = Static("", id="mensaje")
 
-        # Vistas del formulario de ventas
         yield Container(
             Horizontal(
                 Button("Volver", id="volver"),
@@ -41,20 +44,19 @@ class CreateSellView(Screen):
             self.detalles_producto,
             self.cantidad_input,
             self.total_display,
-            self.fecha_input,
             self.mensaje_resultado
         )
 
-
     def on_input_submitted(self, event: Input.Submitted):
-        # Buscar producto por código ingresado.
         if event.input.id == "codigo":
             try:
                 pid = int(event.value)
                 for p in PRODUCTOS:
                     if p["id"] == pid:
                         self.producto = p
-                        self.detalles_producto.update(f"Nombre: {p['nombre']} | Disponible: {p['cantidad']} | Precio: ${p['precio']:.2f}")
+                        self.detalles_producto.update(
+                            f"Nombre: {p['nombre']} | Disponible: {p['cantidad']} | Precio: ${p['precio']:.2f}"
+                        )
                         break
                 else:
                     self.producto = None
@@ -62,7 +64,6 @@ class CreateSellView(Screen):
             except ValueError:
                 self.detalles_producto.update("Código inválido.")
 
-        # Calcular el total a pagar dependiendo de la cantidad.
         elif event.input.id == "cantidad":
             if self.producto:
                 try:
@@ -74,37 +75,47 @@ class CreateSellView(Screen):
                 except ValueError:
                     self.total_display.update("Cantidad inválida.")
 
-        elif event.input.id == "fecha":
-            self.fecha_venta = event.value
-
     def on_button_pressed(self, event: Button.Pressed):
         if event.button.id == "volver":
             self.app.pop_screen()
-        elif event.button.id == "realizar_venta": # Validar datos antes de registrar la venta
-            if self.producto and self.cantidad.isdigit() and self.fecha_venta:
-                try:
-                    datetime.strptime(self.fecha_venta, "%Y-%m-%d")
-                except ValueError:
-                    self.mensaje_resultado.update("Fecha inválida. Usa formato YYYY-MM-DD.")
-                    return
 
+        elif event.button.id == "realizar_venta":
+            if self.producto and self.cantidad.isdigit():
                 cantidad_vendida = int(self.cantidad)
-                if cantidad_vendida <= self.producto["cantidad"]: 
-                    # Actualizar inventario y ventas
+                if cantidad_vendida <= self.producto["cantidad"]:
+                    fecha_venta_actual = datetime.now().strftime("%Y-%m-%d")
+
                     self.producto["cantidad"] -= cantidad_vendida
                     self.producto["vendido"] += cantidad_vendida
-                    self.producto["fecha_venta"] = self.fecha_venta
+                    self.producto["fecha_venta"] = fecha_venta_actual
 
-                    # Guardar en CSV
-                    with open("ventas.csv", "a", newline="") as f:
-                        writer = csv.writer(f)
-                        writer.writerow([
-                            self.producto["id"],
-                            self.producto["nombre"],
-                            cantidad_vendida,
-                            self.total,
-                            self.fecha_venta
-                        ])
+                    # Crear carpeta si no existe
+                    os.makedirs(os.path.dirname(EXCEL_PATH), exist_ok=True)
+
+                    # Guardar en Excel en la pagina "SalesData"
+                    if os.path.exists(EXCEL_PATH):
+                        wb = load_workbook(EXCEL_PATH)
+                    else:
+                        wb = Workbook()
+
+                    if "SalesData" in wb.sheetnames:
+                        ws = wb["SalesData"]
+                    else:
+                        ws = wb.create_sheet("SalesData")
+
+                    # Escribir encabezado si está vacío
+                    if ws.max_row == 1 and ws.cell(row=1, column=1).value is None:
+                        ws.append(["ID", "Nombre", "Cantidad Vendida", "Total", "Fecha de Venta"])
+
+                    ws.append([
+                        self.producto["id"],
+                        self.producto["nombre"],
+                        cantidad_vendida,
+                        float(self.total),
+                        fecha_venta_actual
+                    ])
+
+                    wb.save(EXCEL_PATH)
 
                     self.mensaje_resultado.update("Venta realizada exitosamente.")
                 else:

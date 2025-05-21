@@ -1,15 +1,107 @@
 from textual.screen import Screen
-from textual.containers import Container
-from textual.widgets import Static, Button
+from textual.containers import Container, Vertical, Horizontal
+from textual.widgets import Static, Button, DataTable, Input
+from textual.reactive import reactive
+from textual import events
+import csv
+from datetime import datetime
+
+# Simulamos algunos datos de productos con ventas
+PRODUCTOS = [
+    {"id": 1, "nombre": "Pan", "cantidad": 20, "vendido": 50, "precio": 2000, "fecha_venta": "2025-05-10"},
+    {"id": 2, "nombre": "Leche", "cantidad": 10, "vendido": 80, "precio": 1500, "fecha_venta": "2025-05-14"},
+    {"id": 3, "nombre": "Huevos", "cantidad": 5, "vendido": 120, "precio": 600, "fecha_venta": "2025-05-13"},
+]
 
 
 class CreateSellView(Screen):
+    codigo = reactive("")
+    cantidad = reactive("")
+    fecha_venta = reactive("")
+    total = reactive("0")
+    producto = reactive(None)
+
     def compose(self):
+        self.codigo_input = Input(placeholder="Código del ítem", id="codigo")
+        self.cantidad_input = Input(placeholder="Cantidad a vender", id="cantidad")
+        self.total_display = Static("Total a pagar: $0.00", id="total")
+        self.fecha_input = Input(placeholder="Fecha de venta (YYYY-MM-DD)", id="fecha")
+        self.detalles_producto = Static("", id="detalles")
+        self.mensaje_resultado = Static("", id="mensaje")
+
         yield Container(
-            Static("Generar Venta"),
-            Button("Volver a inicio", id="go_home")
+            Horizontal(
+                Button("Volver", id="volver"),
+                Button("Realizar Venta", id="realizar_venta")
+            ),
+            Static("Generar Nueva Venta"),
+            self.codigo_input,
+            self.detalles_producto,
+            self.cantidad_input,
+            self.total_display,
+            self.fecha_input,
+            self.mensaje_resultado
         )
-    
+
+    def on_input_submitted(self, event: Input.Submitted):
+        if event.input.id == "codigo":
+            try:
+                pid = int(event.value)
+                for p in PRODUCTOS:
+                    if p["id"] == pid:
+                        self.producto = p
+                        self.detalles_producto.update(f"Nombre: {p['nombre']} | Disponible: {p['cantidad']} | Precio: ${p['precio']:.2f}")
+                        break
+                else:
+                    self.producto = None
+                    self.detalles_producto.update("Producto no encontrado.")
+            except ValueError:
+                self.detalles_producto.update("Código inválido.")
+
+        elif event.input.id == "cantidad":
+            if self.producto:
+                try:
+                    cant = int(event.value)
+                    total = cant * self.producto["precio"]
+                    self.total = f"{total:.2f}"
+                    self.cantidad = str(cant)
+                    self.total_display.update(f"Total a pagar: ${self.total}")
+                except ValueError:
+                    self.total_display.update("Cantidad inválida.")
+
+        elif event.input.id == "fecha":
+            self.fecha_venta = event.value
+
     def on_button_pressed(self, event: Button.Pressed):
-        if event.button.id == "go_home":
-            self.app.pop_screen() 
+        if event.button.id == "volver":
+            self.app.pop_screen()
+        elif event.button.id == "realizar_venta":
+            if self.producto and self.cantidad.isdigit() and self.fecha_venta:
+                try:
+                    datetime.strptime(self.fecha_venta, "%Y-%m-%d")
+                except ValueError:
+                    self.mensaje_resultado.update("Fecha inválida. Usa formato YYYY-MM-DD.")
+                    return
+
+                cantidad_vendida = int(self.cantidad)
+                if cantidad_vendida <= self.producto["cantidad"]:
+                    self.producto["cantidad"] -= cantidad_vendida
+                    self.producto["vendido"] += cantidad_vendida
+                    self.producto["fecha_venta"] = self.fecha_venta
+
+                    # Guardar en CSV
+                    with open("ventas.csv", "a", newline="") as f:
+                        writer = csv.writer(f)
+                        writer.writerow([
+                            self.producto["id"],
+                            self.producto["nombre"],
+                            cantidad_vendida,
+                            self.total,
+                            self.fecha_venta
+                        ])
+
+                    self.mensaje_resultado.update("Venta realizada exitosamente.")
+                else:
+                    self.mensaje_resultado.update("Cantidad mayor a stock disponible.")
+            else:
+                self.mensaje_resultado.update("Datos incompletos para realizar la venta.")

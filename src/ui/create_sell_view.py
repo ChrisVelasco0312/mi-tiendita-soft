@@ -6,7 +6,7 @@ from textual import events
 import csv
 from datetime import datetime
 
-# Simulamos algunos datos de productos con ventas
+# Datos de prueba para ventas
 PRODUCTOS = [
     {"id": 1, "nombre": "Pan", "cantidad": 20, "vendido": 50, "precio": 2000, "fecha_venta": "2025-05-10"},
     {"id": 2, "nombre": "Leche", "cantidad": 10, "vendido": 80, "precio": 1500, "fecha_venta": "2025-05-14"},
@@ -21,6 +21,7 @@ class CreateSellView(Screen):
     total = reactive("0")
     producto = reactive(None)
 
+    
     def compose(self):
         self.codigo_input = Input(placeholder="Código del ítem", id="codigo")
         self.cantidad_input = Input(placeholder="Cantidad a vender", id="cantidad")
@@ -29,6 +30,7 @@ class CreateSellView(Screen):
         self.detalles_producto = Static("", id="detalles")
         self.mensaje_resultado = Static("", id="mensaje")
 
+        # Vistas del formulario de ventas
         yield Container(
             Horizontal(
                 Button("Volver", id="volver"),
@@ -43,7 +45,9 @@ class CreateSellView(Screen):
             self.mensaje_resultado
         )
 
+
     def on_input_submitted(self, event: Input.Submitted):
+        # Buscar producto por código ingresado.
         if event.input.id == "codigo":
             try:
                 pid = int(event.value)
@@ -58,6 +62,7 @@ class CreateSellView(Screen):
             except ValueError:
                 self.detalles_producto.update("Código inválido.")
 
+        # Calcular el total a pagar dependiendo de la cantidad.
         elif event.input.id == "cantidad":
             if self.producto:
                 try:
@@ -75,7 +80,7 @@ class CreateSellView(Screen):
     def on_button_pressed(self, event: Button.Pressed):
         if event.button.id == "volver":
             self.app.pop_screen()
-        elif event.button.id == "realizar_venta":
+        elif event.button.id == "realizar_venta": # Validar datos antes de registrar la venta
             if self.producto and self.cantidad.isdigit() and self.fecha_venta:
                 try:
                     datetime.strptime(self.fecha_venta, "%Y-%m-%d")
@@ -84,7 +89,8 @@ class CreateSellView(Screen):
                     return
 
                 cantidad_vendida = int(self.cantidad)
-                if cantidad_vendida <= self.producto["cantidad"]:
+                if cantidad_vendida <= self.producto["cantidad"]: 
+                    # Actualizar inventario y ventas
                     self.producto["cantidad"] -= cantidad_vendida
                     self.producto["vendido"] += cantidad_vendida
                     self.producto["fecha_venta"] = self.fecha_venta

@@ -16,7 +16,6 @@ def create_database_file(
     product_sheet = "ProductData"
     category_sheet = "CategoryData"
     df_initial = pd.DataFrame(product_data)
-
     pd_new_dataframe = pd.DataFrame(category_data)
 
     # Guardamos el archivo excel

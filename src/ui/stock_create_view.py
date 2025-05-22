@@ -5,14 +5,11 @@ from textual.screen import Screen
 from textual.validation import Integer, Length, Regex, ValidationResult, Validator
 from textual.widgets import Button, Header, Input, Label, Select, Static, TextArea
 
+from src.business.category_controller import get_all_categories
+from src.business.create_stock_controller import create_item_code
 from src.ui.widgets.taskbar import Taskbar
 
-# TODO: esto debe ser reemplazado por las categorías registradas.
-CATEGORIES = [
-    "Categoría 1",
-    "Categoría 2",
-    "Categoría 3",
-]
+CATEGORIES = get_all_categories()
 
 
 # validaciones personalizadas.
@@ -46,13 +43,13 @@ class StockCreateView(Screen):
                     classes="styled-select",
                 ),
                 Static("Los campos cón * son obligatorios", classes="required-fields"),
-                Label("Código de item *", classes="styled-label"),
-                Input(
-                    id="item_code",
-                    placeholder="Ejemplo 003CA",
-                    classes="styled-input",
-                    validators=[NotEmpty(), Length(minimum=3, maximum=10)],
-                ),
+                # Label("Código de item *", classes="styled-label"),
+                # Input(
+                #     id="item_code",
+                #     placeholder="Ejemplo 003CA",
+                #     classes="styled-input",
+                #     validators=[NotEmpty(), Length(minimum=3, maximum=10)],
+                # ),
                 Label("Nombre del producto *", classes="styled-label"),
                 Input(
                     id="product_name",
@@ -112,7 +109,9 @@ class StockCreateView(Screen):
         if event.button.id == "create_product":
             output_widget = self.query_one("#output_message", Static)
             category = self.query_one("#category", Select).value
-            item_code = self.query_one("#item_code", Input).value
+            item_code = ""
+            if isinstance(category, str):
+                item_code = create_item_code(category)
             product_name = self.query_one("#product_name", Input).value
             product_purchase_price = self.query_one(
                 "#product_purchase_price", Input
@@ -120,16 +119,27 @@ class StockCreateView(Screen):
             product_quantity = self.query_one("#product_quantity", Input).value
             product_description = self.query_one("#product_description", TextArea).text
             product_provider = self.query_one("#product_provider", Input).value
-            if category and item_code and product_name and product_purchase_price:
-                self.output_text = f"""[b green]Enviado[/]
+
+            if all(
+                [
+                    isinstance(category, str),
+                    item_code,
+                    product_name,
+                    product_purchase_price,
+                    product_quantity,
+                ]
+            ):
+                output_text = f"""[b green]Enviado[/]
+                Item: {item_code}
                 Categoría: {category}
                 Nombre del producto: {product_name}
-                Código de item: {item_code}
                 Precio de compra: {product_purchase_price}
                 Cantidad de existencia: {product_quantity}
                 Descripción: {product_description}
                 Proveedor: {product_provider}
                 """
+                log(output_text)
+                self.output_text = output_text
                 output_widget.styles.border = ("ascii", "green")
             else:
                 self.output_text = (

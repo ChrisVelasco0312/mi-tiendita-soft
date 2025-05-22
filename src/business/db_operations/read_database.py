@@ -17,3 +17,17 @@ def read_excel_data(file_path: str, sheet_name: str, item_code: str):
         print(f"Error: No se encontro el archivo {file_path}.")
     except Exception as error:
         print(f"Error al leer el archivo excel: {error}")
+
+
+def search_data_by_field(
+    file_path: str, sheet_name: str, field_name: str, field_value: str
+):
+    try:
+        # se revisa si el item_code es vacio, por lo tanto se retorna toda la tabla
+        df_read = pd.read_excel(file_path, sheet_name=sheet_name)
+        return df_read[df_read[field_name] == field_value]
+
+    except FileNotFoundError:
+        print(f"Error: No se encontro el archivo {file_path}.")
+    except Exception as error:
+        print(f"Error al leer el archivo excel: {error}")

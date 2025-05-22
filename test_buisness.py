@@ -1,6 +1,8 @@
 from datetime import datetime
 
+from src.business.category_controller import get_all_categories
 from src.business.create_stock_controller import (
+    create_item_code,
     create_stock_product,
     delete_stock_product,
     initialiaze_operations,
@@ -8,8 +10,10 @@ from src.business.create_stock_controller import (
     update_stock_product,
 )
 
-initialiaze_operations()
+# initialiaze_operations()
 # print(read_stock("AB_001"))
+
+create_item_code("Alimentos y bebidas")
 
 
 # new_product_data = [

@@ -1,10 +1,14 @@
 import os
+import re
 from datetime import datetime
 
 import pandas as pd
 
 from src.business.db_operations.create_database import create_database_file
-from src.business.db_operations.read_database import read_excel_data
+from src.business.db_operations.read_database import (
+    read_excel_data,
+    search_data_by_field,
+)
 from src.business.db_operations.update_row_database import update_excel_row
 
 FILE_PATH = "src/business/data/product_stock_data.xlsx"
@@ -52,6 +56,33 @@ def delete_stock_product(item_code: str):
     return deleted_db
 
 
+def create_item_code(category_name: str):
+    item_letters = ""
+    for name in category_name.split():
+        item_letters += name[0]
+
+    item_letters = item_letters.upper()
+
+    # leer datos tabla actual
+    filtered_data = search_data_by_field(
+        FILE_PATH, SHEET_NAME, "category", category_name
+    )
+
+    if not filtered_data.empty:
+        filtered_category_item_codes = filtered_data["item_code"]
+
+        last_item_code = filtered_category_item_codes[
+            len(filtered_category_item_codes) - 1
+        ]
+        consecutive_num = re.findall(r"\d+", last_item_code)[0]
+
+        new_consecutive = int(consecutive_num) + 1
+        new_item_code = f"{new_consecutive}{item_letters}"
+        return new_item_code
+    else:
+        return f"1{item_letters}"
+
+
 def initialiaze_operations():
     # validamos que el archivo exista
     if os.path.exists(FILE_PATH):
@@ -60,13 +91,28 @@ def initialiaze_operations():
         # si no existe lo creamos de 0
         print(f"El archivo {FILE_PATH} no existe")
         initial_product_stock_data = {
-            "item_code": ["AB_001"],
-            "category": ["Alimento y bebidas"],
-            "product_name": ["Arroz Diana x 1 Kilogramo"],
-            "quantity": [7],
-            "purchase_price": [2500],
-            "sale_price": [3500],
-            "creation_date": [datetime.now()],
+            "item_code": ["1AYB", "2AYB", "3AYB", "4AYB"],
+            "category": [
+                "Alimentos y bebidas",
+                "Alimentos y bebidas",
+                "Alimentos y bebidas",
+                "Alimentos y bebidas",
+            ],
+            "product_name": [
+                "Arroz Diana x 1 Kilogramo",
+                "Aceite de oliva x 1 Litro",
+                "Leche Colanta x 1 litro",
+                "Pan Integral Unidad",
+            ],
+            "quantity": [7, 3, 8, 4],
+            "purchase_price": [2500, 8000, 2500, 1000],
+            "sale_price": [3500, 12000, 3500, 1500],
+            "creation_date": [
+                datetime.now(),
+                datetime.now(),
+                datetime.now(),
+                datetime.now(),
+            ],
         }
 
         initial_category_data = {

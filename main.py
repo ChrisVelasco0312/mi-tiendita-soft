@@ -1,5 +1,7 @@
+from textual import log
 from textual.app import App
 
+from src.business.create_stock_controller import initialiaze_operations
 from src.ui.create_sell_view import CreateSellView
 from src.ui.home_view import HomeView
 from src.ui.manage_sell_view import ManageSellView
@@ -27,6 +29,9 @@ class MiTienditaApp(App):
     # función del ciclo de vida de una app textual
     # se montan todas las pantallas (screen)
     def on_mount(self):
+        create_datab = initialiaze_operations()
+        log(create_datab)
+
         self.install_screen(HomeView(), name="home")
         self.install_screen(StockCreateView(), name="stock_register_view")
         self.install_screen(StockManageView(), name="stock_consult_view")

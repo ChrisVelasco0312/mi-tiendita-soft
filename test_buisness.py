@@ -8,7 +8,7 @@ from src.business.create_stock_controller import (
     update_stock_product,
 )
 
-# initialiaze_operations()
+initialiaze_operations()
 # print(read_stock("AB_001"))
 
 
@@ -40,4 +40,4 @@ from src.business.create_stock_controller import (
 
 # create_stock_product(new_product_data)
 
-print(delete_stock_product("AB_002"))
+# print(delete_stock_product("AB_002"))

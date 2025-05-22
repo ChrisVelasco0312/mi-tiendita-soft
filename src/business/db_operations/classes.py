@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import date
 from typing import List, TypedDict
 
@@ -21,3 +20,13 @@ class Product(TypedDict):
     purchase_price: int
     sale_price: int
     creation_date: date
+
+
+class CategoryData(TypedDict):
+    id: List[int]
+    name: List[str]
+
+
+class Category(TypedDict):
+    id: int
+    name: str

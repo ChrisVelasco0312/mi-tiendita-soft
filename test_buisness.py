@@ -13,7 +13,7 @@ from src.business.create_stock_controller import (
 # initialiaze_operations()
 # print(read_stock("AB_001"))
 
-create_item_code("Alimentos y bebidas")
+print(create_item_code("Alimentos y bebidas"))
 
 
 # new_product_data = [

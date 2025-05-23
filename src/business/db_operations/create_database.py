@@ -4,7 +4,7 @@ from src.business.db_operations.classes import CategoryData, ProductData
 
 
 def create_database_file(
-    filename: str, product_data: ProductData, category_data: CategoryData
+    stock_file: str, product_data: ProductData, category_data: CategoryData
 ):
     """
     definimos un diccionario
@@ -12,7 +12,8 @@ def create_database_file(
     """
 
     # Se define el nombre del archivo
-    filename = "src/business/data/product_stock_data.xlsx"
+    stock_file = "src/business/data/product_stock_data.xlsx"
+    category_file = "src/business/data/category_data.xlsx"
     product_sheet = "ProductData"
     category_sheet = "CategoryData"
     df_initial = pd.DataFrame(product_data)
@@ -20,12 +21,11 @@ def create_database_file(
 
     # Guardamos el archivo excel
     try:
-        with pd.ExcelWriter(filename, engine="openpyxl") as writer:
-            df_initial.to_excel(writer, sheet_name=product_sheet, index=False)
-            pd_new_dataframe.to_excel(writer, sheet_name=category_sheet, index=False)
+        df_initial.to_excel(stock_file, sheet_name=product_sheet, index=False)
+        pd_new_dataframe.to_excel(category_file, sheet_name=category_sheet, index=False)
 
         print(
-            f"{filename} fué creado con éxito con las hojas {product_sheet} y {category_sheet}"
+            f"{stock_file} fué creado con éxito con las hojas {product_sheet} y {category_sheet}"
         )
     except PermissionError:
         print("PermissionError: No se pudo crear el archivo")

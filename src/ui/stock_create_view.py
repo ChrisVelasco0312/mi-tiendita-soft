@@ -1,12 +1,14 @@
-from textual import log, on
+from datetime import datetime
+
+from textual import log
 from textual.containers import Grid, VerticalScroll
 from textual.reactive import reactive, var
 from textual.screen import Screen
-from textual.validation import Integer, Length, Regex, ValidationResult, Validator
+from textual.validation import ValidationResult, Validator
 from textual.widgets import Button, Header, Input, Label, Select, Static, TextArea
 
 from src.business.category_controller import get_all_categories
-from src.business.create_stock_controller import create_item_code
+from src.business.create_stock_controller import create_item_code, create_stock_product
 from src.ui.widgets.taskbar import Taskbar
 
 CATEGORIES = get_all_categories()
@@ -43,13 +45,6 @@ class StockCreateView(Screen):
                     classes="styled-select",
                 ),
                 Static("Los campos cón * son obligatorios", classes="required-fields"),
-                # Label("Código de item *", classes="styled-label"),
-                # Input(
-                #     id="item_code",
-                #     placeholder="Ejemplo 003CA",
-                #     classes="styled-input",
-                #     validators=[NotEmpty(), Length(minimum=3, maximum=10)],
-                # ),
                 Label("Nombre del producto *", classes="styled-label"),
                 Input(
                     id="product_name",
@@ -81,17 +76,6 @@ class StockCreateView(Screen):
                     type="number",
                     validators=[NotEmpty()],
                 ),
-                Label("Descripción", classes="styled-label"),
-                TextArea(
-                    id="product_description",
-                    classes="styled-textarea",
-                ),
-                Label("Proveedor", classes="styled-label"),
-                Input(
-                    id="product_provider",
-                    placeholder="Ingrese el proveedor del producto",
-                    classes="styled-input",
-                ),
                 classes="form",
                 id="form",
             ),
@@ -116,31 +100,43 @@ class StockCreateView(Screen):
             product_purchase_price = self.query_one(
                 "#product_purchase_price", Input
             ).value
+            product_sale_price = self.query_one("#product_sale_price", Input).value
             product_quantity = self.query_one("#product_quantity", Input).value
-            product_description = self.query_one("#product_description", TextArea).text
-            product_provider = self.query_one("#product_provider", Input).value
-
             if all(
                 [
                     isinstance(category, str),
                     item_code,
                     product_name,
                     product_purchase_price,
+                    product_sale_price,
                     product_quantity,
                 ]
             ):
-                output_text = f"""[b green]Enviado[/]
-                Item: {item_code}
-                Categoría: {category}
-                Nombre del producto: {product_name}
-                Precio de compra: {product_purchase_price}
-                Cantidad de existencia: {product_quantity}
-                Descripción: {product_description}
-                Proveedor: {product_provider}
-                """
-                log(output_text)
+                new_product_data = [
+                    {
+                        "item_code": item_code,
+                        "category": category,
+                        "product_name": product_name,
+                        "quantity": product_quantity,
+                        "purchase_price": product_purchase_price,
+                        "sale_price": product_sale_price,
+                        "creation_date": datetime.now(),
+                    }
+                ]
+
+                create_stock_product(new_product_data)
+                self.app.push_screen("notification_modal")
+
+                output_text = "[b green]Enviado[/]"
+
+                data_message = (
+                    f"Producto Creado Con Éxito Item: {item_code} {product_name}"
+                )
+                self.app.stock_data_message = data_message.strip()
                 self.output_text = output_text
                 output_widget.styles.border = ("ascii", "green")
+                self.app.refresh()
+                self.clean_data()
             else:
                 self.output_text = (
                     "[b red]Error:[/] Porfavor diligencie todos los campos obligatorios"
@@ -159,6 +155,13 @@ class StockCreateView(Screen):
         log("output text ....")
         output_widget = self.query_one("#output_message", Static)
         output_widget.update(new_message)
+
+    def clean_data(self) -> None:
+        self.query_one("#category", Select).clear()
+        self.query_one("#product_name", Input).clear()
+        self.query_one("#product_purchase_price", Input).clear()
+        self.query_one("#product_sale_price", Input).clear()
+        self.query_one("#product_quantity", Input).clear()
 
     # se usa el decorador on para capturar el evento
     # @on(Input.Changed, "#item_code")

@@ -66,3 +66,35 @@ Input, Select, Button, TextArea {
   margin: 0 2;
   padding: 0 1;
 }
+
+
+NotificationModal {
+  align: center middle;
+}
+
+#modal-box {
+  background: $surface;
+  padding: 2;
+  border: heavy $primary;
+  width: 30%;
+  height: auto;
+  align: center middle;
+  layout: vertical;
+}
+
+#message-box {
+  align: center middle;
+  height: auto;
+  width: 100%;
+}
+
+#message {
+  align: center middle;
+}
+
+#actions {
+  layout: horizontal;
+  height: auto;
+  width: 100%;
+  align: center middle;
+}

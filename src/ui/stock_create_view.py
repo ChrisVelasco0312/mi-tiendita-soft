@@ -5,7 +5,7 @@ from textual.containers import Grid, VerticalScroll
 from textual.reactive import reactive, var
 from textual.screen import Screen
 from textual.validation import ValidationResult, Validator
-from textual.widgets import Button, Header, Input, Label, Select, Static, TextArea
+from textual.widgets import Button, Header, Input, Label, Select, Static
 
 from src.business.category_controller import get_all_categories
 from src.business.create_stock_controller import create_item_code, create_stock_product
@@ -38,21 +38,21 @@ class StockCreateView(Screen):
         yield Grid(
             Taskbar(),
             VerticalScroll(
+                Static("Todos los campos son obligatorios", classes="required-fields"),
                 Label("Selecciona una categoría", classes="styled-label"),
                 Select(
                     ((category, category) for category in CATEGORIES),
                     id="category",
                     classes="styled-select",
                 ),
-                Static("Los campos cón * son obligatorios", classes="required-fields"),
-                Label("Nombre del producto *", classes="styled-label"),
+                Label("Nombre del producto", classes="styled-label"),
                 Input(
                     id="product_name",
                     placeholder="Escriba el nombre del producto",
                     classes="styled-input",
                     validators=[NotEmpty()],
                 ),
-                Label("Precio de compra *", classes="styled-label"),
+                Label("Precio de compra", classes="styled-label"),
                 Input(
                     id="product_purchase_price",
                     placeholder="Ingrese el precio de compra solo números",
@@ -60,7 +60,7 @@ class StockCreateView(Screen):
                     classes="styled-input",
                     validators=[NotEmpty()],
                 ),
-                Label("Precio de precio venta *", classes="styled-label"),
+                Label("Precio de precio venta", classes="styled-label"),
                 Input(
                     id="product_sale_price",
                     placeholder="Ingrese el precio de compra solo números",
@@ -68,7 +68,7 @@ class StockCreateView(Screen):
                     classes="styled-input",
                     validators=[NotEmpty()],
                 ),
-                Label("Cantidad de existencia *", classes="styled-label"),
+                Label("Cantidad de existencia", classes="styled-label"),
                 Input(
                     id="product_quantity",
                     placeholder="Ingrese la cantidad de existencia",
@@ -137,6 +137,7 @@ class StockCreateView(Screen):
                 output_widget.styles.border = ("ascii", "green")
                 self.app.refresh()
                 self.clean_data()
+                self.output_text = ""
             else:
                 self.output_text = (
                     "[b red]Error:[/] Porfavor diligencie todos los campos obligatorios"

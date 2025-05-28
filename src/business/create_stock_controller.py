@@ -35,7 +35,6 @@ def read_stock(item_code: str):
     # si no retorna el item o mensaje nulo
     return read_excel_data(STOCK_FILE_PATH, SHEET_NAME, item_code)
 
-
 def update_stock_product(updated_data):
     df_current_stock_data = read_excel_data(STOCK_FILE_PATH, SHEET_NAME, "")
     # busca el producto por item y actualiza el registro con los datos
@@ -56,7 +55,6 @@ def delete_stock_product(item_code: str):
     deleted_db.to_excel(STOCK_FILE_PATH, sheet_name=SHEET_NAME, index=False)
 
     return deleted_db
-
 
 def create_item_code(category_name: str):
     item_letters = ""

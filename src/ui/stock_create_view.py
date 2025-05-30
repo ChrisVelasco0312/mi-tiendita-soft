@@ -94,14 +94,19 @@ class StockCreateView(Screen):
             output_widget = self.query_one("#output_message", Static)
             category = self.query_one("#category", Select).value
             item_code = ""
+
+            # se valida si la categoria ha sido seleccionada
             if isinstance(category, str):
                 item_code = create_item_code(category)
+
             product_name = self.query_one("#product_name", Input).value
             product_purchase_price = self.query_one(
                 "#product_purchase_price", Input
             ).value
             product_sale_price = self.query_one("#product_sale_price", Input).value
             product_quantity = self.query_one("#product_quantity", Input).value
+
+            # detectamos si los campos han sido llenados
             if all(
                 [
                     isinstance(category, str),
@@ -132,12 +137,15 @@ class StockCreateView(Screen):
                 data_message = (
                     f"Producto Creado Con Éxito Item: {item_code} {product_name}"
                 )
+
+                # actualizamos el estado global
                 self.app.stock_data_message = data_message.strip()
+
                 self.output_text = output_text
                 output_widget.styles.border = ("ascii", "green")
+
                 self.app.refresh()
                 self.clean_data()
-                self.output_text = ""
             else:
                 self.output_text = (
                     "[b red]Error:[/] Porfavor diligencie todos los campos obligatorios"

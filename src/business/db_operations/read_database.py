@@ -23,7 +23,6 @@ def search_data_by_field(
     file_path: str, sheet_name: str, field_name: str, field_value: str
 ):
     try:
-        # se revisa si el item_code es vacio, por lo tanto se retorna toda la tabla
         df_read = pd.read_excel(file_path, sheet_name=sheet_name)
         return df_read[df_read[field_name] == field_value]
 

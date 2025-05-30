@@ -1,0 +1,28 @@
+/* LAYOUT */
+Grid {
+  grid-size: 1 11;
+}
+
+Taskbar {
+  row-span: 1;
+}
+
+Container {
+ row-span: 2;
+ margin-bottom: 2;
+}
+
+Label {
+  margin: 0;
+  margin-bottom: 1;
+}
+
+Input {
+  margin: 0;
+  margin-bottom: 1;
+}
+
+#stock_table {
+  row-span: 4;
+  height: 100;
+}

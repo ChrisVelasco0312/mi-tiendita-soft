@@ -36,6 +36,10 @@ def read_stock(item_code: str):
     return read_excel_data(STOCK_FILE_PATH, SHEET_NAME, item_code)
 
 
+def search_stock(field: str, value):
+    return search_data_by_field(STOCK_FILE_PATH, SHEET_NAME, field, value)
+
+
 def update_stock_product(updated_data):
     df_current_stock_data = read_excel_data(STOCK_FILE_PATH, SHEET_NAME, "")
     # busca el producto por item y actualiza el registro con los datos

@@ -24,9 +24,25 @@ def search_data_by_field(
 ):
     try:
         df_read = pd.read_excel(file_path, sheet_name=sheet_name)
-        return df_read[df_read[field_name] == field_value]
+
+        # Si el valor del campo es vacío, se retorna el dataframe completo
+        if not field_value:
+            return df_read
+
+        # Usa el nombre del campo para filtrar el dataframe
+        if field_name in df_read.columns:
+            # Convierte el campo a string para que funcione el método .str
+            filtered_df = df_read[
+                df_read[field_name]
+                .astype(str)
+                .str.contains(field_value, case=False, na=False)
+            ]
+            return filtered_df
+        else:
+            return pd.DataFrame()
 
     except FileNotFoundError:
         print(f"Error: No se encontro el archivo {file_path}.")
     except Exception as error:
         print(f"Error al leer el archivo excel: {error}")
+        return pd.DataFrame()

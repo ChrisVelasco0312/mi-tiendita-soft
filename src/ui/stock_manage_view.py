@@ -1,7 +1,8 @@
-from textual import on
+from textual import log, on
 from textual.containers import Container, Grid
 from textual.screen import Screen
 from textual.widgets import DataTable, Header, Input, Label
+from rich.text import Text
 
 from src.business.create_stock_controller import read_stock, search_stock
 from src.business.stock_mapper import stock_mapper
@@ -46,10 +47,11 @@ class StockManageView(Screen):
         table = self.query_one(DataTable)
 
         columns = tuple(stock_mapper(product_data.columns))
-        table.add_columns(*columns)
+        table.add_columns(*columns, "Editar")
 
         for row in product_data.values:
-            table.add_row(*tuple(row))
+            edit_button = Text("Editar", style="bold blue underline")
+            table.add_row(*tuple(row), edit_button)
 
     @on(Input.Changed, "#search_by_code_input")
     def on_code_input_change(self, event: Input.Changed) -> None:
@@ -60,12 +62,14 @@ class StockManageView(Screen):
         if filtered_table.empty:
             table.clear()
             for row in product_data.values:
-                table.add_row(*tuple(row))
+                edit_button = Text("Editar", style="bold blue underline")
+                table.add_row(*tuple(row), edit_button)
         else:
             table.clear()
             for row in filtered_table.values:
-                table.add_row(*tuple(row))
-                
+                edit_button = Text("Editar", style="bold blue underline")
+                table.add_row(*tuple(row), edit_button)
+
     @on(Input.Changed, "#search_by_name_input")
     def on_name_input_change(self, event: Input.Changed) -> None:
         product_data = read_stock("")
@@ -75,8 +79,27 @@ class StockManageView(Screen):
         if filtered_table.empty:
             table.clear()
             for row in product_data.values:
-                table.add_row(*tuple(row))
+                edit_button = Text("Editar", style="bold blue underline")
+                table.add_row(*tuple(row), edit_button)
         else:
             table.clear()
             for row in filtered_table.values:
-                table.add_row(*tuple(row))
+                edit_button = Text("Editar", style="bold blue underline")
+                table.add_row(*tuple(row), edit_button)
+
+    @on(DataTable.CellSelected)
+    def on_cell_selected(self, event: DataTable.CellSelected) -> None:
+        product_data = read_stock("")
+        """Handle cell selection in the stock table."""
+        table = self.query_one(DataTable)
+        # Tomar el indice de la ultima columna
+        last_column_index = len(table.columns) - 1
+        
+        # Validar si la celda seleccionada es la ultima columna
+        if event.coordinate.column == last_column_index:
+            row_key = event.coordinate.row
+            row_data = product_data.iloc[row_key]
+            
+            log(f"Editing item: {row_data}")
+            self.notify(f"Editing item with code: {row_data[0]}")
+        

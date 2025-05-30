@@ -6,17 +6,26 @@ from textual.widgets import Button
 
 class Taskbar(Widget):
     DEFAULT_CSS = '''
-        Horizontal {
+        /* Base styles that are generic enough to not cause conflicts */
+        Taskbar {
+          width: 100%;
+          /* Minimal styling to ensure visibility */
+          min-height: 1;
+        }
+        
+        Taskbar Horizontal {
           width: 100%;
         }
-        #title {
+        
+        Taskbar #title {
           width: auto;
         }
-        .back-button {
+        
+        Taskbar .back-button {
           border: round;
         }
-        .exit-button {
-          align: center middle;
+        
+        Taskbar .exit-button {
           background: red;
         }
     '''

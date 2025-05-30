@@ -1,31 +1,36 @@
-/* LAYOUT */
-Grid {
+/* LAYOUT - isolated styles for StockCreateView */
+StockCreateView #create_grid {
   grid-size: 1 20;
 }
 
-Taskbar {
+/* Reset any inherited styles for the Taskbar */
+StockCreateView #create_taskbar {
   row-span: 2;
+  height: auto !important;
+  min-height: 3;
+  margin: 0;
+  padding: 0;
 }
 
-#form {
+StockCreateView #form {
  row-span: 13;
 }
 
-#create_product {
+StockCreateView #create_product {
   row-span: 3;
 }
 
-#output_message {
+StockCreateView #output_message {
   row-span: 2;
 }
 /* END LAYOUT */
 
 
-.form {
+StockCreateView .form {
   padding: 1 1 2 2;
 }
 
-.required-fields {
+StockCreateView .required-fields {
   background: blue 20%;
   height: 3;
   padding: 1;
@@ -33,35 +38,38 @@ Taskbar {
   margin: 1;
 }
 
-.styled-label {
+StockCreateView .styled-label {
 }
 
-.styled-input {
+StockCreateView .styled-input {
 }
 
-.styled-button {
+StockCreateView .styled-button {
 }
 
-.styled-output {
+StockCreateView .styled-output {
   row-span: 1;
 }
 
 
-TextArea {
+StockCreateView TextArea {
   height: 5;
 }
 
-Input, Select, Button, TextArea {
+StockCreateView Input, 
+StockCreateView Select, 
+StockCreateView Button, 
+StockCreateView TextArea {
   margin: 1;
 }
 
-#output_message {
+StockCreateView #output_message {
   overflow-y: auto;
   margin: 0 2;
   padding: 0 1;
 }
 
-#status_message {
+StockCreateView #status_message {
   border: dashed white;
   margin: 0 2;
   padding: 0 1;

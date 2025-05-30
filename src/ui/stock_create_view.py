@@ -36,7 +36,7 @@ class StockCreateView(Screen):
     def compose(self):
         yield Header()
         yield Grid(
-            Taskbar(),
+            Taskbar(id="create_taskbar"),
             VerticalScroll(
                 Static("Todos los campos son obligatorios", classes="required-fields"),
                 Label("Selecciona una categoría", classes="styled-label"),
@@ -86,6 +86,7 @@ class StockCreateView(Screen):
                 classes="styled-button",
                 variant="primary",
             ),
+            id="create_grid",
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

@@ -133,17 +133,8 @@ class StockCreateView(Screen):
                 create_stock_product(new_product_data)
                 self.app.push_screen("notification_modal")
 
-                output_text = "[b green]Enviado[/]"
-
-                data_message = (
-                    f"Producto Creado Con Éxito Item: {item_code} {product_name}"
-                )
-
                 # actualizamos el estado global
                 self.app.stock_data_message = data_message.strip()
-
-                self.output_text = output_text
-                output_widget.styles.border = ("ascii", "green")
 
                 self.app.refresh()
                 self.clean_data()
@@ -154,11 +145,6 @@ class StockCreateView(Screen):
                 output_widget.styles.border = ("ascii", "red")
 
             log(self.output_text)
-
-        # if event.button.id == "go_home":
-        #     self.app.pop_screen()
-        # elif event.button.id == "exit":
-        #     self.app.exit()
 
     def watch_output_text(self, new_message: str) -> None:
         """Update the Static widget when output_text changes."""
@@ -173,9 +159,7 @@ class StockCreateView(Screen):
         self.query_one("#product_sale_price", Input).clear()
         self.query_one("#product_quantity", Input).clear()
 
-    # se usa el decorador on para capturar el evento
-    # @on(Input.Changed, "#item_code")
-    # def on_input_change(self, event: Input.Changed) -> None:
-    #     log("inputting", event.value)
-    #     status_widget = self.query_one("#status_message", Static)
-    #     status_widget.update("Message...")
+        # Reset the output widget
+        output_widget = self.query_one("#output_message", Static)
+        output_widget.update("")
+        output_widget.styles.border = None

@@ -10,27 +10,10 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        python = pkgs.python312;
-        python-with-lsp = python.withPackages (ps: with ps; [
-          # LSP server and plugins
-          python-lsp-server
-          pylsp-mypy
-          python-lsp-ruff
-          pylsp-rope
-          python-lsp-black
-          pyls-isort
-
-          # Optional CLI tools
-          ruff
-          mypy
-          black
-          isort
-        ]);
       in
       {
         devShells.default = pkgs.mkShell {
           buildInputs = [
-            python-with-lsp
             pkgs.poetry
             pkgs.python312Packages.textual
             pkgs.python312Packages.textual-dev

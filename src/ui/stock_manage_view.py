@@ -7,10 +7,14 @@ from rich.text import Text
 from src.business.create_stock_controller import read_stock, search_stock
 from src.business.stock_mapper import stock_mapper
 from src.ui.widgets.taskbar import Taskbar
+from src.ui.stock_update_message import StockUpdateMessage
 
 
 class StockManageView(Screen):
     CSS_PATH = "styles/stock-manage-view.tcss"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def compose(self):
         yield Header()
@@ -53,6 +57,7 @@ class StockManageView(Screen):
             edit_button = Text("Editar", style="bold blue underline")
             table.add_row(*tuple(row), edit_button)
 
+    # evento para buscar por item
     @on(Input.Changed, "#search_by_code_input")
     def on_code_input_change(self, event: Input.Changed) -> None:
         product_data = read_stock("")
@@ -70,6 +75,7 @@ class StockManageView(Screen):
                 edit_button = Text("Editar", style="bold blue underline")
                 table.add_row(*tuple(row), edit_button)
 
+    # evento para buscar por nombre
     @on(Input.Changed, "#search_by_name_input")
     def on_name_input_change(self, event: Input.Changed) -> None:
         product_data = read_stock("")
@@ -99,7 +105,17 @@ class StockManageView(Screen):
         if event.coordinate.column == last_column_index:
             row_key = event.coordinate.row
             row_data = product_data.iloc[row_key]
-            
-            log(f"Editing item: {row_data}")
-            self.notify(f"Editing item with code: {row_data[0]}")
+            # Enviar el mensaje con los datos del producto
+            self.post_message(StockUpdateMessage({
+                "item_code": row_data["item_code"],
+                "category": row_data["category"],
+                "product_name": row_data["product_name"],
+                "quantity": row_data["quantity"],
+                "purchase_price": row_data["purchase_price"],
+                "sale_price": row_data["sale_price"],
+                "creation_date": row_data["creation_date"]
+            }))
+
+            self.notify(f"Editing item with code: {row_data['item_code']}")
+
         

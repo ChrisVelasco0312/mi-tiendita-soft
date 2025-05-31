@@ -116,6 +116,6 @@ class StockManageView(Screen):
                 "creation_date": row_data["creation_date"]
             }))
 
-            self.notify(f"Editing item with code: {row_data['item_code']}")
+            self.notify(f"Editando item con código: {row_data['item_code']}")
 
         

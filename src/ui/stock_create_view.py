@@ -8,7 +8,7 @@ from textual.validation import ValidationResult, Validator
 from textual.widgets import Button, Header, Input, Label, Select, Static
 
 from src.business.category_controller import get_all_categories 
-from src.business.create_stock_controller import create_item_code, create_stock_product
+from src.business.create_stock_controller import create_item_code, create_stock_product, update_stock_product
 from src.ui.widgets.taskbar import Taskbar
 from src.ui.stock_update_message import StockUpdateMessage
 
@@ -169,15 +169,13 @@ class StockCreateView(Screen):
                         "creation_date": datetime.now()
                     }
                     log(f"Update mode: {update_product_data}")
-                    # TODO: Implement update_stock_product function call here
+                    update_stock_product(update_product_data)
                     
-                    # Update the success message for edit mode
-                    self.app.stock_data_message = f"Producto '{product_name}' actualizado correctamente"
+                    # self.app.stock_data_message = f"Producto '{product_name}' actualizado correctamente"
                     
-                    self.notify("Product updated successfully!")
+                    self.notify("Producto actualizado correctamente!")
                     self.app.pop_screen()
                 else:
-                    # Handle create mode - create new product
                     new_product_data = [
                         {
                             "item_code": item_code,
@@ -192,7 +190,7 @@ class StockCreateView(Screen):
 
                     create_stock_product(new_product_data)
                     
-                    # Update the success message for create mode
+                    # Actualiza mensaje de éxito
                     self.app.stock_data_message = f"Producto '{product_name}' creado correctamente"
                     
                     self.app.push_screen("notification_modal")
@@ -231,7 +229,7 @@ class StockCreateView(Screen):
             "creation_date": creation_date,
             "edit_mode": True
         }
-        
+
         # Store the item code for later use
         self.edit_item_code = item_code
 

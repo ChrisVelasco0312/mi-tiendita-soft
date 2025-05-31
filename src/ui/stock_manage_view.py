@@ -7,7 +7,7 @@ from rich.text import Text
 from src.business.create_stock_controller import read_stock, search_stock
 from src.business.stock_mapper import stock_mapper
 from src.ui.widgets.taskbar import Taskbar
-from src.ui.stock_update_message import StockUpdateMessage
+from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMessage
 
 
 class StockManageView(Screen):
@@ -56,6 +56,23 @@ class StockManageView(Screen):
         for row in product_data.values:
             edit_button = Text("Editar", style="bold blue underline")
             table.add_row(*tuple(row), edit_button)
+
+    def refresh_data(self):
+        """Refresh the table data by reloading from the Excel file"""
+        log("Refreshing stock data...")
+        product_data = read_stock("")
+        table = self.query_one(DataTable)
+        
+        # Clear the table and reload data
+        table.clear()
+        for row in product_data.values:
+            edit_button = Text("Editar", style="bold blue underline")
+            table.add_row(*tuple(row), edit_button)
+
+    def on_stock_data_refresh_message(self, message: StockDataRefreshMessage) -> None:
+        """Handle stock data refresh message"""
+        log("Received stock data refresh message")
+        self.refresh_data()
 
     # evento para buscar por item
     @on(Input.Changed, "#search_by_code_input")

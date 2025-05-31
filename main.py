@@ -9,7 +9,7 @@ from src.ui.manage_sell_view import ManageSellView
 from src.ui.NotificationModal import NotificationModal
 from src.ui.stock_create_view import StockCreateView
 from src.ui.stock_manage_view import StockManageView
-from src.ui.stock_update_message import StockUpdateMessage
+from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMessage
 
 LAYOUT_CSS = """
 Vertical {
@@ -60,6 +60,18 @@ class MiTienditaApp(App):
         # Navigate to the screen
         self.push_screen("stock_register_view")
 
+    def on_stock_data_refresh_message(self, message: StockDataRefreshMessage) -> None:
+        """Handle stock data refresh message and refresh the stock manage view"""
+        log("Received stock data refresh message")
+        
+        # Get the stock_consult_view screen and refresh its data
+        try:
+            stock_manage_screen = self.get_screen("stock_consult_view")
+            if hasattr(stock_manage_screen, 'refresh_data'):
+                stock_manage_screen.refresh_data()
+                log("Stock manage view refreshed")
+        except Exception as e:
+            log(f"Error refreshing stock manage view: {e}")
 
 if __name__ == "__main__":
     app = MiTienditaApp()

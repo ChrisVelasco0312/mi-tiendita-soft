@@ -10,7 +10,7 @@ from textual.widgets import Button, Header, Input, Label, Select, Static
 from src.business.category_controller import get_all_categories 
 from src.business.create_stock_controller import create_item_code, create_stock_product, update_stock_product
 from src.ui.widgets.taskbar import Taskbar
-from src.ui.stock_update_message import StockUpdateMessage
+from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMessage
 
 CATEGORIES = get_all_categories()
 
@@ -170,6 +170,9 @@ class StockCreateView(Screen):
                     }
                     log(f"Update mode: {update_product_data}")
                     update_stock_product(update_product_data)
+                    
+                    # Post message to refresh stock data in other views
+                    self.post_message(StockDataRefreshMessage())
                     
                     # self.app.stock_data_message = f"Producto '{product_name}' actualizado correctamente"
                     

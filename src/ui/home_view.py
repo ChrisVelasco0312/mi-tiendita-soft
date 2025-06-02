@@ -2,22 +2,20 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.containers import Vertical, Horizontal
 from textual.widgets import Footer, Header, Button, Collapsible
-from src.ui.widgets.taskbar import Taskbar
 
 
 class HomeView(Screen):
     def compose(self) -> ComposeResult:
-        yield Header(Taskbar())
-        with Vertical():
-            with Horizontal():
-                with Vertical(classes="column"):
-                    with Collapsible(title='Inventario', collapsed=True):
-                        yield Button("Registro de Inventario", variant="primary", id="stock_create_button")
-                        yield Button("Consulta de Inventario", variant="primary", id="stock_manage_button")
-                with Vertical(classes="column"):
-                    with Collapsible(title='Venta', collapsed=True):
-                        yield Button("Generar Venta", variant="primary", id="create_sell_button")
-                        yield Button("Consultar Venta", variant="primary", id="manage_sell_button")
+        yield Header()
+        with Horizontal():
+            with Vertical(classes="column"):
+                with Collapsible(title='Inventario', collapsed=True):
+                    yield Button("Registro de Inventario", variant="primary", id="stock_create_button")
+                    yield Button("Consulta de Inventario", variant="primary", id="stock_manage_button")
+            with Vertical(classes="column"):
+                with Collapsible(title='Venta', collapsed=True):
+                    yield Button("Generar Venta", variant="primary", id="create_sell_button")
+                    yield Button("Consultar Venta", variant="primary", id="manage_sell_button")
         yield Footer()
 
     def on_button_pressed(self, event: Button.Pressed):

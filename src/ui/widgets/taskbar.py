@@ -1,6 +1,6 @@
 from textual import log
 from textual.app import ComposeResult
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Grid, Container
 from textual.widget import Widget
 from textual.widgets import Button
 
@@ -11,11 +11,13 @@ class Taskbar(Widget):
         Taskbar {
           width: 100%;
           /* Minimal styling to ensure visibility */
-          min-height: 1;
+          height: 100%;
         }
         
-        Taskbar Horizontal {
+        Taskbar Grid {
           width: 100%;
+          grid-size: 3 1;
+          grid-columns: 1fr 3fr 1fr;
         }
         
         Taskbar #title {
@@ -25,16 +27,31 @@ class Taskbar(Widget):
         Taskbar .back-button {
           border: round;
         }
+
+        Taskbar #button_1 {
+         align: left middle; 
+         column-span: 1;
+        }
+
+        Taskbar #button_2 {
+          align: right middle;
+          column-span: 1;
+        }
         
         Taskbar .exit-button {
-          background: red;
         }
     '''
 
     def compose(self) -> ComposeResult:
-        yield Horizontal(
-            Button("← Volver", id="go_home", classes="back-button"),
-            Button("cerrar aplicación", id="exit", classes="exit-button"),
+        yield Grid(
+            Container(
+                Button("← Volver", id="go_home", classes="back-button"),
+                id="button_1"
+            ),
+            Container(
+                Button("cerrar aplicación", variant="error", id="exit", classes="exit-button"),
+                id="button_2"
+            )
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

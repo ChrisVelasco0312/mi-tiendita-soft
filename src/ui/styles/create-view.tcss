@@ -5,7 +5,8 @@ StockCreateView #create_grid {
 
 /* Reset any inherited styles for the Taskbar */
 StockCreateView #create_taskbar {
-  row-span: 2;
+  row-span: 3;
+  width: 100%;
   height: auto !important;
   min-height: 3;
   margin: 0;
@@ -13,7 +14,7 @@ StockCreateView #create_taskbar {
 }
 
 StockCreateView #form {
- row-span: 13;
+ row-span: 12;
 }
 
 StockCreateView #create_product {

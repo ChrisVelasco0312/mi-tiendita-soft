@@ -1,8 +1,13 @@
 /* Stock Manage View Styles - completely isolated from other views */
 StockManageView #manage_grid,
-ManageSellView #manage_grid,
-CreateSellView #manage_grid {
+ManageSellView #manage_grid {
   grid-size: 1 11;
+}
+
+/* Special grid layout for CreateSellView with dual tables */
+CreateSellView #manage_grid {
+  grid-size: 1 9;
+  height: 100%;
 }
 
 /* Reset any inherited styles for the Taskbar */
@@ -10,7 +15,7 @@ StockManageView #manage_taskbar,
 ManageSellView #manage_taskbar,
 CreateSellView #manage_taskbar {
   row-span: 1;
-  height: auto !important;
+  height: auto;
   min-height: 3;
   margin: 0;
   padding: 0;
@@ -37,11 +42,57 @@ CreateSellView .manage-input {
   margin-bottom: 1;
 }
 
+/* Original table styles for single-table views */
 StockManageView .manage-table,
-ManageSellView .manage-table,
-CreateSellView .manage-table {
+ManageSellView .manage-table {
   row-span: 4;
-  height: 100;
+  height: 100%;
+}
+
+/* Horizontal container for dual tables in CreateSellView */
+CreateSellView .tables-horizontal {
+  row-span: 5;
+  height: 100%;
+  layout: horizontal;
+  margin: 0;
+  padding: 1;
+}
+
+/* Individual table containers in CreateSellView */
+CreateSellView .table-container {
+  width: 1fr;
+  height: 100%;
+  margin: 0 1 0 0;
+  padding: 0;
+  border: solid $primary;
+}
+
+/* Table styles within containers for CreateSellView */
+CreateSellView .table-container .manage-table {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Labels inside table containers */
+CreateSellView .table-container .manage-label {
+  height: 3;
+  text-align: center;
+  text-style: bold;
+  background: $primary;
+  color: $text;
+  margin: 0 0 1 0;
+  padding: 1;
+}
+
+/* Specific table IDs for CreateSellView */
+CreateSellView #stock_table {
+  height: 100%;
+}
+
+CreateSellView #sell_table {
+  height: 100%;
 }
 
 /* Very specific selectors to override any inherited styles */
@@ -55,9 +106,9 @@ CreateSellView #search_by_name_input {
   margin-bottom: 1;
 }
 
+/* Original single table styles for backward compatibility */
 StockManageView #stock_table,
-ManageSellView #stock_table,
-CreateSellView #stock_table {
+ManageSellView #stock_table {
   row-span: 4;
-  height: 100;
-} 
+  height: 100%;
+}

@@ -1,10 +1,14 @@
 /* Stock Manage View Styles - completely isolated from other views */
-StockManageView #manage_grid {
+StockManageView #manage_grid,
+ManageSellView #manage_grid,
+CreateSellView #manage_grid {
   grid-size: 1 11;
 }
 
 /* Reset any inherited styles for the Taskbar */
-StockManageView #manage_taskbar {
+StockManageView #manage_taskbar,
+ManageSellView #manage_taskbar,
+CreateSellView #manage_taskbar {
   row-span: 1;
   height: auto !important;
   min-height: 3;
@@ -12,34 +16,48 @@ StockManageView #manage_taskbar {
   padding: 0;
 }
 
-StockManageView .manage-container {
+StockManageView .manage-container,
+ManageSellView .manage-container,
+CreateSellView .manage-container {
   row-span: 2;
   margin-bottom: 2;
 }
 
-StockManageView .manage-label {
+StockManageView .manage-label,
+ManageSellView .manage-label,
+CreateSellView .manage-label {
   margin: 0;
   margin-bottom: 1;
 }
 
-StockManageView .manage-input {
+StockManageView .manage-input,
+ManageSellView .manage-input,
+CreateSellView .manage-input {
   margin: 0;
   margin-bottom: 1;
 }
 
-StockManageView .manage-table {
+StockManageView .manage-table,
+ManageSellView .manage-table,
+CreateSellView .manage-table {
   row-span: 4;
   height: 100;
 }
 
 /* Very specific selectors to override any inherited styles */
 StockManageView #search_by_code_input, 
-StockManageView #search_by_name_input {
+StockManageView #search_by_name_input,
+ManageSellView #search_by_code_input, 
+ManageSellView #search_by_name_input,
+CreateSellView #search_by_code_input, 
+CreateSellView #search_by_name_input {
   margin: 0;
   margin-bottom: 1;
 }
 
-StockManageView #stock_table {
+StockManageView #stock_table,
+ManageSellView #stock_table,
+CreateSellView #stock_table {
   row-span: 4;
   height: 100;
 } 

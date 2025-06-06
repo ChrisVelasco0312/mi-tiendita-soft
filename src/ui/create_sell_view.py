@@ -23,9 +23,7 @@ class CreateSellView(Screen):
     def compose(self):
         yield Header()
         yield Grid(
-            Taskbar(id="manage_taskbar"),
-            Container(
-                Label("Buscar item", classes="manage-label"),
+            Taskbar(id="manage_taskbar"), Container( Label("Buscar item", classes="manage-label"),
                 Input(
                     id="search_by_code_input",
                     placeholder="Escribe el código del ítem",
@@ -79,10 +77,13 @@ class CreateSellView(Screen):
 
     def load_stock_excel(self):
         product_data = read_stock("")
+        product_data = product_data[['item_code', 'category', 'product_name', 'quantity', 'sale_price' ]] 
+        
         table = self.query_one("#stock_table", DataTable)
 
-        columns = tuple(stock_mapper(product_data.columns))
-        table.add_columns(*columns, "Agregar")
+        # Mapea solo las columnas filtradas
+        filtered_columns = ["Item", "Categoría", "Nombre", "Cantidad", "Precio Venta"]
+        table.add_columns(*filtered_columns, "Agregar")
 
         for row in product_data.values:
             agregar_button = Text("Agregar", style="bold green underline")
@@ -92,6 +93,7 @@ class CreateSellView(Screen):
         """Actualiza los datos de la tabla recargando desde el archivo Excel"""
         log("Actualizando datos de inventario...")
         product_data = read_stock("")
+        product_data = product_data[['item_code', 'category', 'product_name', 'quantity', 'sale_price']]
         table = self.query_one("#stock_table", DataTable)
         
         # Limpia la tabla y recarga los datos
@@ -105,10 +107,11 @@ class CreateSellView(Screen):
         sell_table = self.query_one("#sell_table", DataTable)
         stock_table = self.query_one("#stock_table", DataTable)
         
-        # Extrae la información del producto según el mapeo correcto de columnas
+        # Extrae la información del producto según el mapeo correcto de columnas (filtrado)
+        # Nuevo mapeo: 0=item_code, 1=category, 2=product_name, 3=quantity, 4=sale_price
         product_code = product_row[0]  # código del item
         product_name = product_row[2] if len(product_row) > 2 else "N/A"  # nombre del producto
-        product_price = product_row[5] if len(product_row) > 5 else 0.0  # precio de venta
+        product_price = product_row[4] if len(product_row) > 4 else 0.0  # precio de venta (era índice 5, ahora 4)
         available_quantity = int(product_row[3]) if len(product_row) > 3 else 0  # cantidad disponible
         
         # Verifica si hay suficiente inventario
@@ -276,13 +279,15 @@ class CreateSellView(Screen):
     def on_code_input_change(self, event: Input.Changed) -> None:
         filtered_table = search_stock("item_code", event.value)
         if filtered_table.empty:
-            product_data = self.current_data
+            product_data = self.current_data[['item_code', 'category', 'product_name', 'quantity', 'sale_price']]
             table = self.query_one("#stock_table", DataTable)
             table.clear()
             for row in product_data.values:
                 agregar_button = Text("Agregar", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
         else:
+            # Filtra las columnas de la tabla de búsqueda también
+            filtered_table = filtered_table[['item_code', 'category', 'product_name', 'quantity', 'sale_price']]
             table = self.query_one("#stock_table", DataTable)
             table.clear()
             for row in filtered_table.values:
@@ -292,7 +297,7 @@ class CreateSellView(Screen):
     # evento para buscar por nombre
     @on(Input.Changed, "#search_by_name_input")
     def on_name_input_change(self, event: Input.Changed) -> None:
-        product_data = self.current_data
+        product_data = self.current_data[['item_code', 'category', 'product_name', 'quantity', 'sale_price']]
         table = self.query_one("#stock_table", DataTable)
         filtered_table = search_stock("product_name", event.value)
 
@@ -302,6 +307,8 @@ class CreateSellView(Screen):
                 agregar_button = Text("Agregar", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
         else:
+            # Filtra las columnas de la tabla de búsqueda también
+            filtered_table = filtered_table[['item_code', 'category', 'product_name', 'quantity', 'sale_price']]
             table.clear()
             for row in filtered_table.values:
                 agregar_button = Text("Agregar", style="bold green underline")

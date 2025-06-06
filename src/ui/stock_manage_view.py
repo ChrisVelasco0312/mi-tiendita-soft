@@ -1,4 +1,5 @@
 from textual import log, on
+from textual.reactive import reactive, var
 from textual.containers import Container, Grid
 from textual.screen import Screen
 from textual.widgets import DataTable, Header, Input, Label
@@ -12,6 +13,8 @@ from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMess
 
 class StockManageView(Screen):
     CSS_PATH = "styles/stock-manage-view.tcss"
+
+    current_data = var(read_stock(""))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,7 +50,7 @@ class StockManageView(Screen):
         self.load_stock_excel()
 
     def load_stock_excel(self):
-        product_data = read_stock("")
+        product_data = self.current_data
         table = self.query_one(DataTable)
 
         columns = tuple(stock_mapper(product_data.columns))
@@ -60,7 +63,7 @@ class StockManageView(Screen):
     def refresh_data(self):
         """Refresh the table data by reloading from the Excel file"""
         log("Refreshing stock data...")
-        product_data = read_stock("")
+        product_data = self.current_data
         table = self.query_one(DataTable)
         
         # Clear the table and reload data
@@ -77,16 +80,16 @@ class StockManageView(Screen):
     # evento para buscar por item
     @on(Input.Changed, "#search_by_code_input")
     def on_code_input_change(self, event: Input.Changed) -> None:
-        product_data = read_stock("")
-        table = self.query_one(DataTable)
         filtered_table = search_stock("item_code", event.value)
-
         if filtered_table.empty:
+            product_data = self.current_data
+            table = self.query_one(DataTable)
             table.clear()
             for row in product_data.values:
                 edit_button = Text("Editar", style="bold blue underline")
                 table.add_row(*tuple(row), edit_button)
         else:
+            table = self.query_one(DataTable)
             table.clear()
             for row in filtered_table.values:
                 edit_button = Text("Editar", style="bold blue underline")
@@ -95,7 +98,7 @@ class StockManageView(Screen):
     # evento para buscar por nombre
     @on(Input.Changed, "#search_by_name_input")
     def on_name_input_change(self, event: Input.Changed) -> None:
-        product_data = read_stock("")
+        product_data = self.current_data
         table = self.query_one(DataTable)
         filtered_table = search_stock("product_name", event.value)
 
@@ -112,27 +115,26 @@ class StockManageView(Screen):
 
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected) -> None:
-        product_data = read_stock("")
+        product_data = self.current_data
         """Handle cell selection in the stock table."""
         table = self.query_one(DataTable)
         # Tomar el indice de la ultima columna
         last_column_index = len(table.columns) - 1
+        selected_row_data = table.get_row(event.cell_key.row_key)
         
         # Validar si la celda seleccionada es la ultima columna
         if event.coordinate.column == last_column_index:
-            row_key = event.coordinate.row
-            row_data = product_data.iloc[row_key]
             # Enviar el mensaje con los datos del producto
             self.post_message(StockUpdateMessage({
-                "item_code": row_data["item_code"],
-                "category": row_data["category"],
-                "product_name": row_data["product_name"],
-                "quantity": row_data["quantity"],
-                "purchase_price": row_data["purchase_price"],
-                "sale_price": row_data["sale_price"],
-                "creation_date": row_data["creation_date"]
+                "item_code": selected_row_data[0],
+                "category": selected_row_data[1],
+                "product_name": selected_row_data[2],
+                "quantity": selected_row_data[3],
+                "purchase_price": selected_row_data[4],
+                "sale_price": selected_row_data[5],
+                "creation_date": selected_row_data[6]
             }))
 
-            self.notify(f"Editando item con código: {row_data['item_code']}")
+        self.notify(f"Editando item con código: {selected_row_data[0]}")
 
         

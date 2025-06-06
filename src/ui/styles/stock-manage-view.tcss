@@ -79,6 +79,8 @@ CreateSellView .table-container .manage-table {
   margin: 0;
   padding: 0;
   min-height: 25;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 /* Labels inside table containers */
@@ -95,10 +97,14 @@ CreateSellView .table-container .manage-label {
 /* Specific table IDs for CreateSellView */
 CreateSellView #stock_table {
   height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 CreateSellView #sell_table {
   height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 /* Very specific selectors to override any inherited styles */
@@ -119,11 +125,12 @@ CreateSellView .sell-container {
 }
 
 CreateSellView .sell-header {
-  height: 3;
+  height: 4;
   layout: horizontal;
   margin: 0 0 1 0;
   padding: 1;
   background: $panel;
+  align: center middle;
 }
 
 CreateSellView .total-label {
@@ -131,11 +138,32 @@ CreateSellView .total-label {
   text-style: bold;
   content-align: left middle;
   color: $success;
+  margin: 0 1 0 0;
 }
 
 CreateSellView .sell-button {
   width: auto;
-  min-width: 10;
+  min-width: 12;
+  height: 3;
+  margin: 0;
+  padding: 1;
+  content-align: center middle;
+  text-style: bold;
+  color: $text;
+}
+
+/* Clean button styling */
+CreateSellView #sell_button {
+  width: 12;
+  height: 3;
+  content-align: center middle;
+  text-align: center;
+  text-style: bold;
+  color: white;
+  background: $success;
+  border: none;
+  margin: 0 0 0 1;
+  padding: 0 1;
 }
 
 /* Original single table styles for backward compatibility */

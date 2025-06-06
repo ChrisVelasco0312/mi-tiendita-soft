@@ -128,6 +128,12 @@ class StockCreateView(Screen):
             button = self.query_one("#create_product", Button)
             button.label = "Actualizar producto"
 
+    def on_screen_suspend(self):
+        self.current_stock_item["edit_mode"] = False
+        button = self.query_one("#create_product", Button)
+        button.label = "Registrar producto"
+        self.clean_data()
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         # capturamos todos los datos del producto para registrarlos
         if event.button.id == "create_product":
@@ -247,3 +253,4 @@ class StockCreateView(Screen):
         output_widget = self.query_one("#output_message", Static)
         output_widget.update("")
         output_widget.styles.border = None
+        item_code_valid = True

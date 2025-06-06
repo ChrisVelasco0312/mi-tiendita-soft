@@ -50,7 +50,7 @@ class StockManageView(Screen):
         self.load_stock_excel()
 
     def load_stock_excel(self):
-        product_data = self.current_data
+        product_data = read_stock("")
         table = self.query_one(DataTable)
 
         columns = tuple(stock_mapper(product_data.columns))
@@ -63,7 +63,7 @@ class StockManageView(Screen):
     def refresh_data(self):
         """Refresh the table data by reloading from the Excel file"""
         log("Refreshing stock data...")
-        product_data = self.current_data
+        product_data = read_stock("")
         table = self.query_one(DataTable)
         
         # Clear the table and reload data

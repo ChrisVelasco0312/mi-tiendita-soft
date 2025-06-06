@@ -106,6 +106,32 @@ CreateSellView #search_by_name_input {
   margin-bottom: 1;
 }
 
+/* Sell table specific styling */
+CreateSellView .sell-container {
+  height: 100%;
+  layout: vertical;
+}
+
+CreateSellView .sell-header {
+  height: 4;
+  layout: horizontal;
+  margin: 0 0 1 0;
+  padding: 1;
+  background: $panel;
+}
+
+CreateSellView .total-label {
+  width: 1fr;
+  text-style: bold;
+  content-align: left middle;
+  color: $success;
+}
+
+CreateSellView .sell-button {
+  width: auto;
+  min-width: 10;
+}
+
 /* Original single table styles for backward compatibility */
 StockManageView #stock_table,
 ManageSellView #stock_table {

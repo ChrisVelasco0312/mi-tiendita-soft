@@ -1,8 +1,8 @@
 from textual import log, on
 from textual.reactive import reactive, var
-from textual.containers import Container, Grid, Horizontal
+from textual.containers import Container, Grid, Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import DataTable, Header, Input, Label
+from textual.widgets import Button, DataTable, Header, Input, Label
 from rich.text import Text
 
 from src.business.create_stock_controller import read_stock, search_stock
@@ -15,6 +15,7 @@ class CreateSellView(Screen):
 
     current_data = var(read_stock(""))
     sell_items = var([])  # Lista para almacenar items agregados a la venta
+    total_price = var(0.0)  # Precio total de la venta
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -50,7 +51,15 @@ class CreateSellView(Screen):
                 ),
                 Container(
                     Label("Productos a vender", classes="manage-label"),
-                    DataTable(id="sell_table", classes="manage-table"),
+                    Vertical(
+                        Horizontal(
+                            Label("Total: $0.00", id="total_label", classes="total-label"),
+                            Button("Vender", id="sell_button", variant="success", classes="sell-button"),
+                            classes="sell-header",
+                        ),
+                        DataTable(id="sell_table", classes="manage-table"),
+                        classes="sell-container",
+                    ),
                     classes="table-container",
                 ),
                 classes="tables-horizontal",
@@ -64,7 +73,7 @@ class CreateSellView(Screen):
         self.setup_sell_table()
 
     def setup_sell_table(self):
-        """Setup the sell table with appropriate columns."""
+        """Configura la tabla de ventas con las columnas apropiadas."""
         sell_table = self.query_one("#sell_table", DataTable)
         sell_table.add_columns("Código", "Producto", "Precio", "Cantidad", "Total", "Reducir", "Quitar")
 
@@ -80,8 +89,8 @@ class CreateSellView(Screen):
             table.add_row(*tuple(row), agregar_button)
 
     def refresh_data(self):
-        """Refresh the table data by reloading from the Excel file"""
-        log("Refreshing stock data...")
+        """Actualiza los datos de la tabla recargando desde el archivo Excel"""
+        log("Actualizando datos de inventario...")
         product_data = read_stock("")
         table = self.query_one("#stock_table", DataTable)
         
@@ -92,15 +101,15 @@ class CreateSellView(Screen):
             table.add_row(*tuple(row), agregar_button)
 
     def add_product_to_sell(self, product_row):
-        """Add a product to the sell table and reduce inventory."""
+        """Agrega un producto a la tabla de ventas y reduce el inventario."""
         sell_table = self.query_one("#sell_table", DataTable)
         stock_table = self.query_one("#stock_table", DataTable)
         
         # Extrae la información del producto según el mapeo correcto de columnas
-        product_code = product_row[0]  # item_code
-        product_name = product_row[2] if len(product_row) > 2 else "N/A"  # product_name
-        product_price = product_row[5] if len(product_row) > 5 else 0.0  # sale_price
-        available_quantity = int(product_row[3]) if len(product_row) > 3 else 0  # quantity
+        product_code = product_row[0]  # código del item
+        product_name = product_row[2] if len(product_row) > 2 else "N/A"  # nombre del producto
+        product_price = product_row[5] if len(product_row) > 5 else 0.0  # precio de venta
+        available_quantity = int(product_row[3]) if len(product_row) > 3 else 0  # cantidad disponible
         
         # Verifica si hay suficiente inventario
         if available_quantity <= 0:
@@ -153,7 +162,7 @@ class CreateSellView(Screen):
         self.update_sell_items()
 
     def reduce_stock_quantity(self, product_code, quantity_to_reduce):
-        """Reduce the quantity in the stock table."""
+        """Reduce la cantidad en la tabla de inventario."""
         stock_table = self.query_one("#stock_table", DataTable)
         
         # Encuentra la fila del producto en el inventario
@@ -172,7 +181,7 @@ class CreateSellView(Screen):
                 break
 
     def increase_stock_quantity(self, product_code, quantity_to_add):
-        """Increase the quantity in the stock table."""
+        """Aumenta la cantidad en la tabla de inventario."""
         stock_table = self.query_one("#stock_table", DataTable)
         
         # Encuentra la fila del producto en el inventario
@@ -191,7 +200,7 @@ class CreateSellView(Screen):
                 break
 
     def reduce_product_in_sell(self, row_key):
-        """Reduce quantity of product in sell table by 1."""
+        """Reduce la cantidad del producto en la tabla de ventas en 1."""
         sell_table = self.query_one("#sell_table", DataTable)
         row_data = sell_table.get_row(row_key)
         product_code = row_data[0]
@@ -200,7 +209,7 @@ class CreateSellView(Screen):
         current_quantity = int(row_data[3])
         
         if current_quantity > 1:
-            # Reduce quantity by 1
+            # Reduce la cantidad en 1
             new_quantity = current_quantity - 1
             new_total = product_price * new_quantity
             
@@ -239,18 +248,28 @@ class CreateSellView(Screen):
         """Actualiza la lista de items de la venta con los datos de la tabla"""
         sell_table = self.query_one("#sell_table", DataTable)
         items = []
+        total = 0.0
         
         for row_key in sell_table.rows.keys():
             row_data = sell_table.get_row(row_key)
+            item_total = float(row_data[4])
             items.append({
                 'code': row_data[0],
                 'name': row_data[1],
                 'price': float(row_data[2]),
                 'quantity': int(row_data[3]),
-                'total': float(row_data[4])
+                'total': item_total
             })
+            total += item_total
         
         self.sell_items = items
+        self.total_price = total
+        self.update_total_display()
+
+    def update_total_display(self):
+        """Actualiza la visualización del precio total"""
+        total_label = self.query_one("#total_label", Label)
+        total_label.update(f"Total: ${self.total_price:.2f}")
 
     # evento para buscar por item
     @on(Input.Changed, "#search_by_code_input")
@@ -288,10 +307,40 @@ class CreateSellView(Screen):
                 agregar_button = Text("Agregar", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
 
+    @on(Button.Pressed, "#sell_button")
+    def on_sell_button_pressed(self, event: Button.Pressed) -> None:
+        """Maneja el clic del botón vender para completar la venta."""
+        if not self.sell_items:
+            self.notify("No hay productos para vender", severity="warning")
+            return
+        
+        # Aquí se puede agregar lógica para procesar la venta
+        # Por ahora, solo limpiamos la tabla de ventas y mostramos confirmación
+        sell_table = self.query_one("#sell_table", DataTable)
+        
+        # Registra la venta para depuración
+        log(f"Venta completada: {len(self.sell_items)} productos, Total: ${self.total_price:.2f}")
+        for item in self.sell_items:
+            log(f"  - {item['name']}: {item['quantity']} x ${item['price']:.2f} = ${item['total']:.2f}")
+        
+        # Guarda el total para el mensaje de éxito antes de limpiar
+        final_total = self.total_price
+        
+        # Limpia la tabla de ventas
+        sell_table.clear()
+        
+        # Reinicia los totales
+        self.sell_items = []
+        self.total_price = 0.0
+        self.update_total_display()
+        
+        # Muestra mensaje de éxito
+        self.notify(f"¡Venta completada! Total: ${final_total:.2f}", severity="information")
+
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected) -> None:
         """Maneja la selección de celdas en ambas tablas."""
-        # Determine which table was clicked
+        # Determina cuál tabla fue clickeada
         table = event.data_table
         
         if table.id == "stock_table":
@@ -299,7 +348,7 @@ class CreateSellView(Screen):
             last_column_index = len(table.columns) - 1
             
             if event.coordinate.column == last_column_index:
-                # "Agregar" botón clickeado
+                # Botón "Agregar" clickeado
                 selected_row_data = table.get_row(event.cell_key.row_key)
                 self.add_product_to_sell(selected_row_data)
                 
@@ -309,8 +358,8 @@ class CreateSellView(Screen):
             second_to_last_column_index = len(table.columns) - 2
             
             if event.coordinate.column == second_to_last_column_index:
-                # "Reducir" button clicked
+                # Botón "Reducir" clickeado
                 self.reduce_product_in_sell(event.cell_key.row_key)
             elif event.coordinate.column == last_column_index:
-                # "Quitar" button clicked
+                # Botón "Quitar" clickeado
                 self.remove_product_from_sell(event.cell_key.row_key) 

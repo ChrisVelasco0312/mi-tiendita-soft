@@ -133,6 +133,7 @@ def initialiaze_operations():
                 "Otros",
             ],
         }
+
         create_database_file(
             STOCK_FILE_PATH, initial_product_stock_data, initial_category_data
         )

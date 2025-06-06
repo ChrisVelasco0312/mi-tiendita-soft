@@ -10,10 +10,12 @@ from src.business.create_stock_controller import (
     update_stock_product,
 )
 
+from src.business.sell_controller import initialize_sell_db, read_sell_data, create_sell, update_sell
+
 # initialiaze_operations()
 # print(read_stock("AB_001"))
 
-print(create_item_code("Alimentos y bebidas"))
+# print(create_item_code("Alimentos y bebidas"))
 
 
 # new_product_data = [
@@ -45,3 +47,25 @@ print(create_item_code("Alimentos y bebidas"))
 # create_stock_product(new_product_data)
 
 # print(delete_stock_product("AB_002"))
+
+# initialize_sell_db()
+# read_sell_data()
+
+new_sell_data = [
+    {
+        "items": "AB5-CA5-TA1",
+        "quantities": "40-50-60",
+        "total": 1200000,
+    }
+]
+
+create_sell(new_sell_data)
+
+# updated_sell_row = {
+#     "id": 1,
+#     "items": "AB1-AB2-AB3",
+#     "quantities": "1-4-10",
+#     "total": 54200,
+# }
+#
+# update_sell(updated_sell_row)

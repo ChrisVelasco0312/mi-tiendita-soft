@@ -30,3 +30,18 @@ class CategoryData(TypedDict):
 class Category(TypedDict):
     id: int
     name: str
+
+class SellData(TypedDict):
+    id: List[int]
+    items: List[str]
+    quantities: List[str]
+    total: List[int]
+    date: List[date]
+
+
+class Sell(TypedDict):
+    id: str
+    items: str
+    quatities: str
+    total: int
+    date: date

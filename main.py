@@ -1,6 +1,5 @@
 from textual import log
-from textual.app import App 
-from textual.reactive import reactive
+from textual.app import App
 
 from src.business.create_stock_controller import initialiaze_operations
 from src.ui.create_sell_view import CreateSellView
@@ -9,7 +8,7 @@ from src.ui.manage_sell_view import ManageSellView
 from src.ui.NotificationModal import NotificationModal
 from src.ui.stock_create_view import StockCreateView
 from src.ui.stock_manage_view import StockManageView
-from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMessage
+from src.ui.stock_update_message import StockDataRefreshMessage, StockUpdateMessage
 
 LAYOUT_CSS = """
 Vertical {
@@ -17,11 +16,12 @@ Vertical {
 }
 """
 
+
 # Punto de entrada de la aplicación.
 class MiTienditaApp(App):
     BINDINGS = [("d", "toggle_dark", "Togle dark mode")]
     CSS = LAYOUT_CSS
-    
+
     # estas variables se convierten en estado global
     stock_data_message: str = ""
 
@@ -49,29 +49,30 @@ class MiTienditaApp(App):
     def on_stock_update_message(self, message: StockUpdateMessage) -> None:
         """Handle stock update message and pass data to stock_register_view"""
         log(f"Received stock update message: {message.payload}")
-        
+
         # Get the stock_register_view screen
         stock_screen = self.get_screen("stock_register_view")
-        
+
         # Set the edit mode data
-        if hasattr(stock_screen, 'set_edit_data'):
+        if hasattr(stock_screen, "set_edit_data"):
             stock_screen.set_edit_data(message.payload)
-        
+
         # Navigate to the screen
         self.push_screen("stock_register_view")
 
     def on_stock_data_refresh_message(self, message: StockDataRefreshMessage) -> None:
         """Handle stock data refresh message and refresh the stock manage view"""
         log("Received stock data refresh message")
-        
+
         # Get the stock_consult_view screen and refresh its data
         try:
             stock_manage_screen = self.get_screen("stock_consult_view")
-            if hasattr(stock_manage_screen, 'refresh_data'):
+            if hasattr(stock_manage_screen, "refresh_data"):
                 stock_manage_screen.refresh_data()
                 log("Stock manage view refreshed")
         except Exception as e:
             log(f"Error refreshing stock manage view: {e}")
+
 
 if __name__ == "__main__":
     app = MiTienditaApp()

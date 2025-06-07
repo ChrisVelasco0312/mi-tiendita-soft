@@ -11,7 +11,9 @@ dependencies = [
     "textual (>=3.2.0,<4.0.0)",
     "pandas (>=2.2.3,<3.0.0)",
     "openpyxl (>=3.1.5,<4.0.0)",
-    "pyinstaller (>=6.13.0,<7.0.0)"
+    "pyinstaller (>=6.13.0,<7.0.0)",
+    "python-lsp-ruff (>=2.2.2,<3.0.0)",
+    "ruff (>=0.11.13,<0.12.0)"
 ]
 package-mode = false
 
@@ -25,4 +27,14 @@ i = "poetry install --no-root"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = "^0.34.0"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "B", "I"]
+ignore = []
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+profile="black"
 

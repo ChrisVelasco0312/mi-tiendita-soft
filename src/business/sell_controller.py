@@ -13,9 +13,6 @@ SHEET_NAME = "SellData"
 
 def read_sell_data():
     return read_excel_data(FILE_PATH, SHEET_NAME, "")
-#
-# def search_sell_data(field: str, value):
-#     return search_data_by_field(FILE_PATH, SHEET_NAME, field, value)
 
 def create_sell(data):
     df_current_sell_data = read_sell_data()

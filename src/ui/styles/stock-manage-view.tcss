@@ -54,7 +54,7 @@ ManageSellView .manage-table {
 
 /* Horizontal container for dual tables in CreateSellView */
 CreateSellView .tables-horizontal {
-  row-span: 4;
+  row-span: 5;
   layout: horizontal;
   margin: 0;
   padding: 1;
@@ -71,6 +71,7 @@ CreateSellView .table-container {
 
 /* Table styles within containers for CreateSellView */
 CreateSellView .table-container .manage-table {
+  align: center middle;
   margin: 0;
   padding: 0;
   overflow-x: auto;

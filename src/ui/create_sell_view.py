@@ -1,12 +1,12 @@
 from rich.text import Text
 from textual import log, on
 from textual.containers import Container, Grid, Horizontal, Vertical
-from textual.reactive import reactive, var
+from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import Button, DataTable, Header, Input, Label
 
 from src.business.create_stock_controller import read_stock, search_stock
-from src.business.stock_mapper import stock_mapper
+from src.business.sell_controller import create_sell
 from src.ui.widgets.taskbar import Taskbar
 
 
@@ -363,16 +363,32 @@ class CreateSellView(Screen):
         sell_table = self.query_one("#sell_table", DataTable)
 
         # Registra la venta para depuración
-        log(
-            f"Venta completada: {len(self.sell_items)} productos, Total: ${self.total_price:.2f}"
-        )
+
+        log(self.sell_items)
+        items_fix_value: str | list = []
+        quantities_fix_value: str | list = []
+
         for item in self.sell_items:
-            log(
-                f"  - {item['name']}: {item['quantity']} x ${item['price']:.2f} = ${item['total']:.2f}"
-            )
+            if isinstance(items_fix_value, list):
+                items_fix_value.append(item["code"])
+
+            if isinstance(quantities_fix_value, list):
+                quantities_fix_value.append(str(item["quantity"]))
+
+        items_fix_value = "-".join(items_fix_value)
+        quantities_fix_value = "-".join(quantities_fix_value)
 
         # Guarda el total para el mensaje de éxito antes de limpiar
         final_total = self.total_price
+        new_sell_data = [
+            {
+                "items": items_fix_value,
+                "quantities": quantities_fix_value,
+                "total": final_total,
+            }
+        ]
+
+        create_sell(new_sell_data)
 
         # Limpia la tabla de ventas
         sell_table.clear()

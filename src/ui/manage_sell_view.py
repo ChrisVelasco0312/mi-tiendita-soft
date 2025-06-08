@@ -1,19 +1,19 @@
+from rich.text import Text
 from textual import log, on
-from textual.reactive import reactive, var
 from textual.containers import Container, Grid
+from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import DataTable, Header, Input, Label
-from rich.text import Text
 
-from src.business.create_stock_controller import read_stock, search_stock
-from src.business.stock_mapper import stock_mapper
+from src.business.create_stock_controller import search_stock
+from src.business.sell_controller import read_sell_data
 from src.ui.widgets.taskbar import Taskbar
 
 
 class ManageSellView(Screen):
     CSS_PATH = "styles/stock-manage-view.tcss"
 
-    current_data = var(read_stock(""))
+    current_data = var(read_sell_data())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,7 +40,7 @@ class ManageSellView(Screen):
                 ),
                 classes="manage-container",
             ),
-            DataTable(id="stock_table", classes="manage-table"),
+            DataTable(id="sell_table", classes="manage-table"),
             classes="manage-grid",
             id="manage_grid",
         )
@@ -49,26 +49,40 @@ class ManageSellView(Screen):
         self.load_stock_excel()
 
     def load_stock_excel(self):
-        product_data = read_stock("")
+        sell_data = read_sell_data()
+        sell_data = sell_data[["id", "total", "date"]]
         table = self.query_one(DataTable)
 
-        columns = tuple(stock_mapper(product_data.columns))
-        table.add_columns(*columns, "Agregar")
+        column_translations = {
+            "id": "# Venta",
+            "total": "Total",
+            "date": "Fecha",
+        }
 
-        for row in product_data.values:
-            agregar_button = Text("Agregar", style="bold green underline")
+        columns = []
+
+        for column in sell_data.columns:
+            column_name = column_translations[column]
+            columns.append(column_name)
+
+        columns = tuple(columns)
+
+        table.add_columns(*columns, "Detalle")
+
+        for row in sell_data.values:
+            agregar_button = Text("ver detalle", style="bold green underline")
             table.add_row(*tuple(row), agregar_button)
 
     def refresh_data(self):
         """Refresh the table data by reloading from the Excel file"""
         log("Refreshing stock data...")
-        product_data = read_stock("")
+        sell_data = read_sell_data()
         table = self.query_one(DataTable)
-        
+
         # Clear the table and reload data
         table.clear()
-        for row in product_data.values:
-            agregar_button = Text("Agregar", style="bold green underline")
+        for row in sell_data.values:
+            agregar_button = Text("ver detalle", style="bold green underline")
             table.add_row(*tuple(row), agregar_button)
 
     # evento para buscar por item
@@ -80,13 +94,13 @@ class ManageSellView(Screen):
             table = self.query_one(DataTable)
             table.clear()
             for row in product_data.values:
-                agregar_button = Text("Agregar", style="bold green underline")
+                agregar_button = Text("ver detalle", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
         else:
             table = self.query_one(DataTable)
             table.clear()
             for row in filtered_table.values:
-                agregar_button = Text("Agregar", style="bold green underline")
+                agregar_button = Text("ver detalle", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
 
     # evento para buscar por nombre
@@ -99,26 +113,27 @@ class ManageSellView(Screen):
         if filtered_table.empty:
             table.clear()
             for row in product_data.values:
-                agregar_button = Text("Agregar", style="bold green underline")
+                agregar_button = Text("ver detalle", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
         else:
             table.clear()
             for row in filtered_table.values:
-                agregar_button = Text("Agregar", style="bold green underline")
+                agregar_button = Text("ver detalle", style="bold green underline")
                 table.add_row(*tuple(row), agregar_button)
 
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected) -> None:
-        product_data = self.current_data
+        sell_data = self.current_data
         """Handle cell selection in the sell table."""
         table = self.query_one(DataTable)
         # Tomar el indice de la ultima columna
         last_column_index = len(table.columns) - 1
-        selected_row_data = table.get_row(event.cell_key.row_key)
-        
+        selected_row_id = table.get_row(event.cell_key.row_key)[0]
+
         # Validar si la celda seleccionada es la ultima columna
         if event.coordinate.column == last_column_index:
             # Solo hacer log en lugar de procesar edición
-            log(f"Agregar button clicked for product: {selected_row_data[2]} (Code: {selected_row_data[0]})")
-            self.notify(f"Agregando producto: {selected_row_data[2]} (Código: {selected_row_data[0]})")
-
+            log(sell_data[sell_data["id"] == selected_row_id])
+            # self.notify(
+            #     f"Agregando producto: {selected_row_data[2]} (Código: {selected_row_data[0]})"
+            # )

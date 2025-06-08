@@ -9,8 +9,12 @@ from src.business.create_stock_controller import (
     read_stock,
     update_stock_product,
 )
-
-from src.business.sell_controller import initialize_sell_db, read_sell_data, create_sell, update_sell
+from src.business.sell_controller import (
+    create_sell,
+    initialize_sell_db,
+    read_sell_data,
+    update_sell,
+)
 
 # initialiaze_operations()
 # print(read_stock("AB_001"))
@@ -49,17 +53,17 @@ from src.business.sell_controller import initialize_sell_db, read_sell_data, cre
 # print(delete_stock_product("AB_002"))
 
 # initialize_sell_db()
-# read_sell_data()
+print(read_sell_data())
 
-new_sell_data = [
-    {
-        "items": "AB5-CA5-TA1",
-        "quantities": "40-50-60",
-        "total": 1200000,
-    }
-]
-
-create_sell(new_sell_data)
+# new_sell_data = [
+#     {
+#         "items": "AB5-CA5-TA1",
+#         "quantities": "40-50-60",
+#         "total": 1200000,
+#     }
+# ]
+#
+# create_sell(new_sell_data)
 
 # updated_sell_row = {
 #     "id": 1,

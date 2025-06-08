@@ -5,7 +5,7 @@ StockManageView #manage_grid {
 
 /* ManageSellView with horizontal dual tables - simplified layout */
 ManageSellView #manage_grid {
-  grid-size: 1 4;
+  grid-size: 1 5;
   height: 100%;
 }
 
@@ -26,6 +26,13 @@ CreateSellView #manage_taskbar {
   padding: 0;
 }
 
+/* Filter container for ManageSellView */
+ManageSellView .manage-container {
+  row-span: 1;
+  margin-bottom: 1;
+}
+
+/* Container for StockManageView */
 StockManageView .manage-container {
   row-span: 2;
   margin-bottom: 2;
@@ -44,6 +51,7 @@ CreateSellView .manage-label {
 }
 
 StockManageView .manage-input,
+ManageSellView .manage-input,
 CreateSellView .manage-input {
   margin: 0;
   margin-bottom: 1;

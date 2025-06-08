@@ -41,13 +41,11 @@ usuarios, pero si contiene un ejecutable portable para windows.
 - Módulo de ventas
   - Buscar y agregar productos
   - Calcular total
-  - Generar factura pdf
   - Registrar venta en base de datos excel
   - Consultar venta por fecha díaria
 - Interfaz de usuario en Textual, es una interfaz de usuario
-  sensilla que se ejecuta fácilmente en una terminal, los requisitos
-  son mínimos ya que ni siquiera requiere de un navegador ya que se puede
-  considerar como una app de escritorio.
+  sencilla que se ejecuta fácilmente en una terminal, los requisitos
+  son mínimos ya que no requiere de navegador.
 - Se entrega un ejecutable demo para windows.
 
 ## Versión 2 Sistema mejorado para comercializarlo
@@ -56,6 +54,7 @@ usuarios, pero si contiene un ejecutable portable para windows.
 - Uso de bases de datos relacionales.
 - Implementación de aplicación web que funcione en la nube.
 - Interfaz web con react.
+- Generar factura pdf
 
 ## Versión 3
 
@@ -64,6 +63,7 @@ usuarios, pero si contiene un ejecutable portable para windows.
 
 # Avances del código
 
+**Para el entregable 2**
 - Se implementa la interfaz para el registro de producto.
 - Se divide el proyecto de forma módular de la siguiente forma.
   - `ui` es la carpeta que contiene todas las pantallas y componentes de
@@ -74,13 +74,10 @@ usuarios, pero si contiene un ejecutable portable para windows.
 - Se implementa la lógica básica CRUD para el registro de productos en el
   inventario.
 
-# Próximos pasos:
-
-- [ ] Interfaz de consulta de inventario y actualización de producto.
-- [ ] Interfaz de generación de venta.
-- [ ] Lógica de generación de venta, registro en nueva base de datos de ventas.
-- [ ] Interfaz de consulta de ventas por fecha diaria.
-- [ ] Generación de factura en pdf
+**Para el entregable 3**
+- Se agregó la vista de consulta de inventario, para la cual se puede consultar por nombre o código de ítem.
+- También se agregó la vista de venta que crea ventas, calcula los precios y las registra.
+- La vista de consulta de ventas permite ver las ventas registradas con su detalle, total y filtrar por hoy, ayer, últimos 30 y 7 días.
 
 # Detalles del proyecto e instrucciones de ejecución
 

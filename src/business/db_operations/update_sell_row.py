@@ -42,7 +42,6 @@ def update_excel_row(database, file_path: str, sheet_name: str, new_data: Sell):
         return df_update
     except Exception as error:
         # Fallback to regular pandas Excel writer if xlsxwriter is not available
-        print(f"Warning: xlsxwriter not available, using default Excel writer: {error}")
         try:
             df_update.to_excel(file_path, sheet_name=sheet_name, index=False)
             return df_update

@@ -23,25 +23,7 @@ class ManageSellView(Screen):
         yield Header()
         yield Grid(
             Taskbar(id="manage_taskbar"),
-            Container(
-                Label("Buscar item", classes="manage-label"),
-                Input(
-                    id="search_by_code_input",
-                    placeholder="Escribe el código del ítem",
-                    classes="manage-input",
-                ),
-                classes="manage-container",
-            ),
-            Container(
-                Label("Buscar por nombre", classes="manage-label"),
-                Input(
-                    id="search_by_name_input",
-                    placeholder="Escribe el nombre del producto",
-                    classes="manage-input",
-                ),
-                classes="manage-container",
-            ),
-            # Contenedor horizontal para ambas tablas
+            # Contenedor horizontal para ambas tablas - now taking more space
             Horizontal(
                 Container(
                     Label("Historial de ventas", classes="manage-label"),
@@ -50,6 +32,7 @@ class ManageSellView(Screen):
                 ),
                 Container(
                     Label("Detalle de venta seleccionada", classes="manage-label"),
+                    Label("Selecciona una venta para ver la fecha", id="sell_date_label", classes="date-label"),
                     DataTable(id="detail_table", classes="manage-table"),
                     classes="table-container",
                 ),
@@ -111,6 +94,11 @@ class ManageSellView(Screen):
         # Obtener los datos completos de la venta
         sell_data = read_sell_data()
         selected_sell = sell_data[sell_data["id"] == sell_id].iloc[0]
+        
+        # Update the date label
+        date_label = self.query_one("#sell_date_label", Label)
+        sell_date = selected_sell["date"]
+        date_label.update(f"Fecha: {sell_date}")
         
         log(f"Selected sell data: {selected_sell}")
         
@@ -178,44 +166,6 @@ class ManageSellView(Screen):
                         str(quantity),
                         "0.00"
                     )
-
-    # evento para buscar por item
-    @on(Input.Changed, "#search_by_code_input")
-    def on_code_input_change(self, event: Input.Changed) -> None:
-        filtered_table = search_stock("item_code", event.value)
-        if filtered_table.empty:
-            product_data = self.current_data
-            product_data = product_data[["id", "total", "date"]]
-            table = self.query_one("#sell_table", DataTable)
-            table.clear()
-            for row in product_data.values:
-                agregar_button = Text("ver detalle", style="bold green underline")
-                table.add_row(*tuple(row), agregar_button)
-        else:
-            table = self.query_one("#sell_table", DataTable)
-            table.clear()
-            for row in filtered_table.values:
-                agregar_button = Text("ver detalle", style="bold green underline")
-                table.add_row(*tuple(row), agregar_button)
-
-    # evento para buscar por nombre
-    @on(Input.Changed, "#search_by_name_input")
-    def on_name_input_change(self, event: Input.Changed) -> None:
-        product_data = self.current_data
-        product_data = product_data[["id", "total", "date"]]
-        table = self.query_one("#sell_table", DataTable)
-        filtered_table = search_stock("product_name", event.value)
-
-        if filtered_table.empty:
-            table.clear()
-            for row in product_data.values:
-                agregar_button = Text("ver detalle", style="bold green underline")
-                table.add_row(*tuple(row), agregar_button)
-        else:
-            table.clear()
-            for row in filtered_table.values:
-                agregar_button = Text("ver detalle", style="bold green underline")
-                table.add_row(*tuple(row), agregar_button)
 
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected) -> None:

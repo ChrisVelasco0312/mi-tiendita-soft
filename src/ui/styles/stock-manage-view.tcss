@@ -1,7 +1,12 @@
 /* Stock Manage View Styles - completely isolated from other views */
-StockManageView #manage_grid,
-ManageSellView #manage_grid {
+StockManageView #manage_grid {
   grid-size: 1 10;
+}
+
+/* ManageSellView with horizontal dual tables - simplified layout */
+ManageSellView #manage_grid {
+  grid-size: 1 4;
+  height: 100%;
 }
 
 /* Special grid layout for CreateSellView with dual tables */
@@ -21,8 +26,7 @@ CreateSellView #manage_taskbar {
   padding: 0;
 }
 
-StockManageView .manage-container,
-ManageSellView .manage-container {
+StockManageView .manage-container {
   row-span: 2;
   margin-bottom: 2;
 }
@@ -40,16 +44,71 @@ CreateSellView .manage-label {
 }
 
 StockManageView .manage-input,
-ManageSellView .manage-input,
 CreateSellView .manage-input {
   margin: 0;
   margin-bottom: 1;
 }
 
 /* Original table styles for single-table views */
-StockManageView .manage-table,
-ManageSellView .manage-table {
+StockManageView .manage-table {
   row-span: 5;
+}
+
+/* Horizontal container for dual tables in ManageSellView */
+ManageSellView .tables-horizontal {
+  row-span: 3;
+  layout: horizontal;
+  margin: 0;
+  padding: 1;
+  height: 100%;
+}
+
+/* Individual table containers in ManageSellView */
+ManageSellView .table-container {
+  width: 1fr;
+  height: 100%;
+  margin: 0 1 0 0;
+  padding: 0;
+  border: solid $primary;
+}
+
+/* Table styles within containers for ManageSellView */
+ManageSellView .table-container .manage-table {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+/* Labels inside table containers for ManageSellView */
+ManageSellView .table-container .manage-label {
+  height: 1;
+  text-align: center;
+  text-style: bold;
+  background: $primary;
+  color: $text;
+  margin: 0 0 1 0;
+  padding: 0;
+}
+
+/* Date label styling for ManageSellView */
+ManageSellView .date-label {
+  height: 1;
+  text-align: center;
+  text-style: bold;
+  background: $success;
+  color: $text;
+  margin: 0 0 1 0;
+  padding: 0;
+}
+
+/* Specific table IDs for ManageSellView */
+ManageSellView #sell_table,
+ManageSellView #detail_table {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 /* Horizontal container for dual tables in CreateSellView */
@@ -103,8 +162,6 @@ CreateSellView #sell_table {
 /* Very specific selectors to override any inherited styles */
 StockManageView #search_by_code_input, 
 StockManageView #search_by_name_input,
-ManageSellView #search_by_code_input, 
-ManageSellView #search_by_name_input,
 CreateSellView #search_by_code_input, 
 CreateSellView #search_by_name_input {
   margin: 0;

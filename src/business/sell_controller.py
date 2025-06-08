@@ -57,7 +57,6 @@ def create_sell(data):
             
     except Exception as e:
         # Fallback to regular pandas Excel writer if xlsxwriter is not available
-        print(f"Warning: xlsxwriter not available, using default Excel writer: {e}")
         df_combined_data.to_excel(FILE_PATH, sheet_name=SHEET_NAME, index=False)
     
     return df_combined_data

@@ -52,8 +52,8 @@ from src.business.sell_controller import (
 
 # print(delete_stock_product("AB_002"))
 
-# initialize_sell_db()
-print(read_sell_data())
+initialize_sell_db()
+# print(read_sell_data())
 
 # new_sell_data = [
 #     {

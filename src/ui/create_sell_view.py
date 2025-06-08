@@ -234,7 +234,6 @@ class CreateSellView(Screen):
         sell_table = self.query_one("#sell_table", DataTable)
         row_data = sell_table.get_row(row_key)
         product_code = row_data[0]
-        product_name = row_data[1]
         product_price = float(row_data[2])
         current_quantity = int(row_data[3])
 
@@ -265,7 +264,6 @@ class CreateSellView(Screen):
         sell_table = self.query_one("#sell_table", DataTable)
         row_data = sell_table.get_row(row_key)
         product_code = row_data[0]
-        product_name = row_data[1]
         quantity_to_return = int(row_data[3])
 
         # Devuelve toda la cantidad al inventario
@@ -387,6 +385,8 @@ class CreateSellView(Screen):
                 "total": final_total,
             }
         ]
+
+        log(new_sell_data)
 
         create_sell(new_sell_data)
 

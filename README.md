@@ -1,147 +1,128 @@
 # MI TIENDITA SOFT
 
-Software de inventario y caja para tiendas de barrio.
+Software de inventario y caja para tiendas de barrio con interfaz en terminal.
 
-# Introducción y objetivos
+## 🚀 Inicio Rápido
 
-Se presenta la necesidad de un sistema sencillo para tiendas de barrio que
-permita la gestión de inventario y ventas.
+### Prerrequisitos
+- Python 3.11 o superior
+- Poetry (recomendado) o pip
 
-Las tiendas de barrio son negocios pequeños que muchas veces no cuentan con una
-organización adecuada de los procesos básicos de venta y registro de
-inventario, algunas veces los procesos de caja, venta e inventario se organizan
-de forma manual en papel.
+### Instalación y Ejecución
 
-La implementación de este software tiene como objetivo mejorar los procesos de
-gestón de inventario y venta para tiendas pequeñas de barrio, permitiendo al
-usuario registrar productos en una base de datos local en formato excel de forma
-automática a través de un formulario sencillo, además de habilitar la consulta
-de los productos registrados de inventario junto con la cantidad en existencia.
-
-Adicional a ello permitir al usuario generar ventas y facturas, agregando
-productos existentes a la venta, calculando precio total y registrar la venta en
-una base de datos excel para la consulta de ventas por fecha (mensual, semanal
-y díaria)
-
-# Alcance
-
-Hemos planeado 2 versiones que definen el alcance del proyecto, la primera
-versión se plantea cómo MVP (Mínimo Producto Viable) y es la versión que se
-presentará para la clase de fundamentos de programación. La primera versión
-no usa bases de datos relacionales y debe funcionar en local al almacenar los
-datos en archivos de excel. Tampoco incluye un módulo de autorización de
-usuarios, pero si contiene un ejecutable portable para windows.
-
-## Version 1 MVP Clase Fundamentos de Programación
-
-- Módulo de registro de inventario.
-  - Registro de producto con categoría.
-  - Base de datos en excel para productos.
-  - Consulta y actualización de producto.
-- Módulo de ventas
-  - Buscar y agregar productos
-  - Calcular total
-  - Registrar venta en base de datos excel
-  - Consultar venta por fecha díaria
-- Interfaz de usuario en Textual, es una interfaz de usuario
-  sencilla que se ejecuta fácilmente en una terminal, los requisitos
-  son mínimos ya que no requiere de navegador.
-- Se entrega un ejecutable demo para windows.
-
-## Versión 2 Sistema mejorado para comercializarlo
-
-- Módulo de administración de usuarios
-- Uso de bases de datos relacionales.
-- Implementación de aplicación web que funcione en la nube.
-- Interfaz web con react.
-- Generar factura pdf
-
-## Versión 3
-
-- Versión de escritorio con Electron para Windows.
-- Versión móvil android y ios.
-
-# Avances del código
-
-**Para el entregable 2**
-- Se implementa la interfaz para el registro de producto.
-- Se divide el proyecto de forma módular de la siguiente forma.
-  - `ui` es la carpeta que contiene todas las pantallas y componentes de
-    interfaz (front-end con `Textual`)
-  - `business` es la carpeta que contiene la lógica de negocio, todas las
-    operaciones CRUD con el excel de Inventario y las funciones controlador que se
-    exponen a la interfaz. (backend)
-- Se implementa la lógica básica CRUD para el registro de productos en el
-  inventario.
-
-**Para el entregable 3**
-- Se agregó la vista de consulta de inventario, para la cual se puede consultar por nombre o código de ítem.
-- También se agregó la vista de venta que crea ventas, calcula los precios y las registra.
-- La vista de consulta de ventas permite ver las ventas registradas con su detalle, total y filtrar por hoy, ayer, últimos 30 y 7 días.
-
-# Detalles del proyecto e instrucciones de ejecución
-
-## Estructura de Carpetas
-
-```
-.
-├── main.py
-├── src
-│   ├── ui
-│   └── business
-├── Makefile
-├── pyproject.toml
-├── poetry.lock
-├── .git
-├── flake.nix
-├── flake.lock
-├── example_code.py
-├── docs
-├── .gitignore
-└── README.md
-```
-
-## Configuración para NixOS
-
-Para configurar el entorno de desarrollo en NixOS, se utiliza el archivo
-`flake.nix`. Este archivo define un entorno de desarrollo que incluye Python y
-Poetry. Para activar este entorno, se puede usar el comando:
-
+#### Opción 1: Con Poetry (Recomendado)
 ```bash
-nix develop
-```
-
-## Uso de Poetry
-
-Poetry se utiliza para gestionar las dependencias del proyecto. Para instalar
-las dependencias, se puede ejecutar:
-
-```bash
+# Instalar dependencias
 poetry install --no-root
-```
 
-Para ejecutar el proyecto, se utiliza el siguiente comando:
-
-```bash
+# Ejecutar aplicación
 poetry run python main.py
 ```
 
-## Scripts del Makefile
+#### Opción 2: Con Nix (Para usuarios NixOS)
+```bash
+# Activar entorno de desarrollo
+nix develop
 
-El `Makefile` contiene los siguientes scripts:
+# Ejecutar aplicación
+python main.py
+```
 
-- `ed`: Activa automaticamente el entorno nix y abre neovim.
-- `dev`: Ejecuta modo dev de textual
-- `serve`: Ejecuta el modo web de textual
-- `pinstall`: Instala las dependencias del proyecto usando Poetry.
-- `start`: Ejecuta el programa automáticamente con el entorno nix
-- `run`: Ejecuta el proyecto usando Poetry.
+#### Opción 3: Con pip
+```bash
+# Crear entorno virtual
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
 
-## Tecnologías Utilizadas
+# Instalar dependencias
+pip install textual pandas openpyxl xlsxwriter
 
-- **Python**: Lenguaje de programación principal del proyecto.
-- **Textual**: Biblioteca utilizada para la interfaz del proyecto.
-- **Pandas**: Biblioteca utilizada para hacer operaciones sobre excel.
-- **Poetry**: Herramienta para la gestión de dependencias y empaquetado de Python.
-- **Nix**: Sistema de gestión de paquetes utilizado para configurar el entorno
-  de desarrollo, solo relevante para usuarios de Nix o NixOS
+# Ejecutar aplicación
+python main.py
+```
+
+### Scripts de Automatización (Makefile)
+
+```bash
+make pinstall    # Instalar dependencias con Poetry
+make run         # Ejecutar con Poetry
+make start       # Ejecutar con Nix
+make dev         # Modo desarrollo Textual
+make serve       # Modo web Textual
+```
+
+## 📖 Documentación
+
+### Documentación Principal
+- **[Introducción y Objetivos](docs/introduccion-y-objetivos.md)** - Problemática, objetivos y beneficios del proyecto
+- **[Alcance y Versiones](docs/alcance-y-versiones.md)** - Roadmap de desarrollo y características por versión
+- **[Arquitectura del Sistema](docs/arquitectura.md)** - Estructura técnica y componentes principales
+- **[Flujos de Trabajo](docs/flujos-de-trabajo.md)** - Procesos detallados de inventario y ventas
+
+### Documentación Técnica
+- **[Historias de Usuario](docs/historias-usuario.md)** - Requisitos funcionales desde perspectiva del usuario
+- **[Convenciones de Categorías](docs/convencion_categoria.md)** - Estándares para categorías de productos
+- **[Convenciones de Items](docs/convencion_item.md)** - Reglas para códigos de productos
+
+## 🎯 Funcionalidades Principales
+
+### ✅ Módulo de Inventario
+- Registro de productos con categorías predefinidas
+- Generación automática de códigos únicos
+- Consulta y edición de inventario
+- Eliminación de productos con confirmación
+
+### ✅ Módulo de Ventas
+- Carrito de compras interactivo
+- Validación de stock en tiempo real
+- Cálculo automático de totales
+- Historial de ventas con filtros temporales
+
+### ✅ Interfaz de Usuario
+- Terminal UI moderna con Textual
+- Navegación intuitiva con teclado
+- Temas claro y oscuro
+- Validaciones en tiempo real
+
+## 🏪 Uso del Sistema
+
+### Navegación Principal
+Al ejecutar la aplicación, encontrarás dos secciones principales:
+
+**Inventario:**
+- **Registro de Inventario**: Agregar nuevos productos
+- **Consulta de Inventario**: Buscar y gestionar productos existentes
+
+**Ventas:**
+- **Generar Venta**: Crear nuevas transacciones de venta
+- **Consultar Venta**: Revisar historial de ventas con filtros
+
+### Atajos de Teclado
+- `d`: Alternar entre tema claro y oscuro
+- `Tab`: Navegar entre elementos
+- `Enter`: Confirmar selección
+- `Escape`: Regresar/cancelar
+- `ctrl + q`: Cerrar la aplicación
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Python 3.11+**: Lenguaje principal
+- **Textual**: Framework para interfaz de terminal moderna
+- **Pandas**: Manipulación de datos y operaciones Excel
+- **Poetry**: Gestión de dependencias
+- **Nix**: Entorno reproducible de desarrollo (opcional)
+
+## 📊 Estado del Proyecto
+
+**Versión Actual: 1.0 (MVP Completado)**
+
+- ✅ Sistema completo de inventario
+- ✅ Proceso de ventas funcional
+- ✅ Persistencia en archivos Excel
+- ✅ Interfaz intuitiva en terminal
+- ✅ Validaciones de negocio implementadas
+
+## 📄 Licencia
+
+Proyecto académico desarrollado para IU Digital. 

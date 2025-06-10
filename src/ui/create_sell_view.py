@@ -5,7 +5,11 @@ from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import Button, DataTable, Header, Input, Label
 
-from src.business.create_stock_controller import read_stock, search_stock
+from src.business.create_stock_controller import (
+    read_stock,
+    search_stock,
+    update_stock_product,
+)
 from src.business.sell_controller import create_sell
 from src.ui.widgets.taskbar import Taskbar
 
@@ -120,7 +124,6 @@ class CreateSellView(Screen):
     def add_product_to_sell(self, product_row):
         """Agrega un producto a la tabla de ventas y reduce el inventario."""
         sell_table = self.query_one("#sell_table", DataTable)
-        stock_table = self.query_one("#stock_table", DataTable)
 
         # Extrae la información del producto según el mapeo correcto de columnas (filtrado)
         # Nuevo mapeo: 0=item_code, 1=category, 2=product_name, 3=quantity, 4=sale_price
@@ -352,24 +355,39 @@ class CreateSellView(Screen):
     @on(Button.Pressed, "#sell_button")
     def on_sell_button_pressed(self, event: Button.Pressed) -> None:
         """Maneja el clic del botón vender para completar la venta."""
+
+        product_data = self.current_data
         if not self.sell_items:
             self.notify("No hay productos para vender", severity="warning")
             return
 
-        # Aquí se puede agregar lógica para procesar la venta
-        # Por ahora, solo limpiamos la tabla de ventas y mostramos confirmación
         sell_table = self.query_one("#sell_table", DataTable)
 
         # Registra la venta para depuración
-
-        log(self.sell_items)
         items_fix_value: str | list = []
         quantities_fix_value: str | list = []
 
         for item in self.sell_items:
+            product_to_update = product_data[product_data["item_code"] == item["code"]]
+            # disminuir las cantidades de la bd de inventario (stock)
+            final_quantity = product_to_update["quantity"] - item["quantity"]
+            updated_row_data = {
+                # El item_code solo se usa para encontrar el registro
+                "item_code": item["code"],
+                "category": product_to_update["category"],
+                "product_name": product_to_update["product_name"],
+                "quantity": final_quantity,
+                "purchase_price": product_to_update["purchase_price"],
+                "sale_price": product_to_update["sale_price"],
+                "creation_date": product_to_update["creation_date"],
+            }
+            update_stock_product(updated_row_data)
+
+            # Preparar el campo de items para la bd de ventas
             if isinstance(items_fix_value, list):
                 items_fix_value.append(item["code"])
 
+            # Preparar el campo de cantidades para la bd de ventas
             if isinstance(quantities_fix_value, list):
                 quantities_fix_value.append(str(item["quantity"]))
 
@@ -385,8 +403,6 @@ class CreateSellView(Screen):
                 "total": final_total,
             }
         ]
-
-        log(new_sell_data)
 
         create_sell(new_sell_data)
 

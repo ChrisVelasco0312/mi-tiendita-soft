@@ -57,6 +57,12 @@ CreateSellView .manage-input {
   margin-bottom: 1;
 }
 
+CreateSellView .manage-input {
+  padding: 0;
+  margin: 0;
+  height: 3;
+}
+
 /* Original table styles for single-table views */
 StockManageView .manage-table {
   row-span: 5;

@@ -8,18 +8,15 @@ Este documento describe los flujos de trabajo principales del sistema Mi Tiendit
 
 ### Flujo de Arranque
 
-```
-Usuario ejecuta main.py
-         ↓
-Aplicación llama initialiaze_operations()
-         ↓
-¿Existen archivos Excel?
-    ├─ NO → Crear archivos con datos ejemplo
-    └─ SÍ → Cargar configuración existente
-         ↓
-Registrar todas las pantallas (screens)
-         ↓
-Mostrar HomeView (pantalla principal)
+```mermaid
+flowchart TD
+    A["Usuario ejecuta main.py"] --> B["Aplicación llama initialiaze_operations()"]
+    B --> C{"Existen archivos Excel?"}
+    C -->|NO| D["Crear archivos con datos ejemplo"]
+    C -->|SÍ| E["Cargar configuración existente"]
+    D --> F["Registrar todas las pantallas (screens)"]
+    E --> F
+    F --> G["Mostrar HomeView (pantalla principal)"]
 ```
 
 ### Inicialización de Base de Datos
@@ -45,6 +42,61 @@ Mostrar HomeView (pantalla principal)
    - `sell_data.xlsx`: Base de datos de ventas (vacía)
 
 ## 2. Gestión de Inventario
+
+```mermaid
+flowchart TD
+    A["Usuario accede al Sistema de Inventario"] --> B{"Seleccionar operación"}
+
+    B -->|Registrar Producto| C["Navegar a StockCreateView"]
+    C --> D["Formulario de Registro"]
+    D --> E["Seleccionar categoría del dropdown"]
+    E --> F["Ingresar datos del producto<br/>(nombre, cantidad, precios)"]
+    F --> G["Generar código automático<br/>create_item_code(category)"]
+    G --> H["Validar datos del formulario"]
+    H --> I{"Datos válidos?"}
+    I -->|NO| J["Mostrar errores de validación"]
+    I -->|SÍ| K["Crear DataFrame con nuevo producto"]
+    K --> L["Guardar en Excel<br/>product_stock_data.xlsx"]
+    L --> M["Enviar StockDataRefreshMessage"]
+    M --> N["Mostrar confirmación de registro"]
+
+    B -->|Consultar/Gestionar| O["Navegar a StockManageView"]
+    O --> P["Cargar inventario completo<br/>refresh_data()"]
+    P --> Q["Mostrar tabla interactiva"]
+    Q --> R{"Acción del usuario"}
+
+    R -->|Buscar| S["Ingresar criterio de búsqueda"]
+    S --> T{"Tipo de búsqueda"}
+    T -->|Por código| U["Búsqueda exacta"]
+    T -->|Por nombre| V["Búsqueda parcial"]
+    U --> W["Filtrar tabla en tiempo real"]
+    V --> W
+    W --> Q
+
+    R -->|Editar| X["Seleccionar producto de la tabla"]
+    X --> Y["Enviar StockUpdateMessage"]
+    Y --> Z["Navegar a StockCreateView<br/>(modo edición)"]
+    Z --> AA["Pre-cargar formulario con datos"]
+    AA --> AB["Modificar datos necesarios"]
+    AB --> AC["Confirmar actualización"]
+    AC --> AD["Actualizar base de datos"]
+    AD --> AE["Refrescar vista de gestión"]
+
+    R -->|Eliminar| AF["Seleccionar producto"]
+    AF --> AG["Mostrar modal de confirmación"]
+    AG --> AH{"Confirmar eliminación?"}
+    AH -->|NO| AI["Cancelar operación"]
+    AH -->|SÍ| AJ["delete_stock_product()"]
+    AJ --> AK["Actualizar Excel"]
+    AK --> AL["Refrescar vista automáticamente"]
+
+    J --> F
+    N --> AM["Continuar operaciones"]
+    AI --> Q
+    AL --> Q
+    AE --> Q
+    AM --> B
+```
 
 ### 2.1 Registro de Nuevo Producto
 
@@ -126,6 +178,56 @@ Mostrar HomeView (pantalla principal)
 
 **Vista:** `StockManageView`
 
+```mermaid
+flowchart TD
+    A["Usuario navega a StockManageView"] --> B["on_mount(): Cargar todos los productos<br/>refresh_data()"]
+    B --> C["Mostrar tabla con inventario completo"]
+    C --> D["Usuario decide acción"]
+    D --> E{"Tipo de acción"}
+
+    E -->|Búsqueda| F["Usuario ingresa criterio de búsqueda"]
+    F --> G{"Tipo de búsqueda"}
+    G -->|Por código| H["Búsqueda exacta por item_code<br/>(ej: '1AYB')"]
+    G -->|Por nombre| I["Búsqueda parcial en product_name"]
+    H --> J["Actualizar tabla en tiempo real"]
+    I --> J
+    J --> K["Mostrar resultados filtrados"]
+    K --> D
+
+    E -->|Editar| L["Usuario selecciona fila en tabla"]
+    L --> M["Presiona Enter o botón Editar"]
+    M --> N["get_selected_row_data()<br/>Obtener datos del producto"]
+    N --> O["Enviar StockUpdateMessage<br/>con payload de datos"]
+    O --> P["Navegar a StockCreateView<br/>(modo edición)"]
+    P --> Q["Pre-cargar formulario con datos"]
+    Q --> R["Cambiar botón a 'Actualizar'"]
+    R --> S["Usuario modifica datos"]
+    S --> T["Confirmar actualización"]
+    T --> U["Actualizar base de datos Excel"]
+    U --> V["Enviar StockDataRefreshMessage"]
+    V --> W["Actualizar StockManageView"]
+    W --> X["Mostrar confirmación"]
+
+    E -->|Eliminar| Y["Usuario selecciona producto"]
+    Y --> Z["Presiona botón 'Eliminar'"]
+    Z --> AA["Mostrar modal de confirmación"]
+    AA --> BB{"Usuario confirma eliminación?"}
+    BB -->|NO| CC["Cancelar eliminación"]
+    BB -->|SÍ| DD["delete_stock_product(item_code)"]
+    DD --> EE["Buscar índice del producto<br/>en DataFrame"]
+    EE --> FF["Eliminar fila con drop()"]
+    FF --> GG["Guardar DataFrame actualizado<br/>en Excel"]
+    GG --> HH["Actualizar vista automáticamente"]
+    HH --> II["Mostrar confirmación de eliminación"]
+
+    X --> JJ["Volver a vista de gestión"]
+    CC --> D
+    II --> D
+    JJ --> D
+```
+
+**Detalles de implementación:**
+
 #### Flujo de Consulta
 
 1. **Carga Inicial**
@@ -146,52 +248,26 @@ Mostrar HomeView (pantalla principal)
    - Columnas: Código, Categoría, Nombre, Cantidad, Precios
    - Navegación con teclado (flechas, Tab, Enter)
 
-#### Flujo de Edición
+#### Comunicación Entre Vistas
 
-1. **Selección de Producto**
+```python
+def on_data_table_row_selected(self, event):
+    # Obtiene datos del producto seleccionado
+    row_data = self.get_selected_row_data()
 
-   ```
-   Usuario selecciona fila en tabla → Presiona Enter
-   ```
+    # Envía mensaje con datos para edición
+    self.post_message(StockUpdateMessage(payload=row_data))
+```
 
-2. **Comunicación Entre Vistas**
+#### Eliminación de Productos
 
-   ```python
-   def on_data_table_row_selected(self, event):
-       # Obtiene datos del producto seleccionado
-       row_data = self.get_selected_row_data()
-
-       # Envía mensaje con datos para edición
-       self.post_message(StockUpdateMessage(payload=row_data))
-   ```
-
-3. **Navegación Automática**
-
-   ```
-   StockManageView → Envía StockUpdateMessage → StockCreateView (modo edición)
-   ```
-
-4. **Modo Edición**
-   - `StockCreateView` recibe mensaje y pre-carga datos
-   - Formulario se llena automáticamente
-   - Botón cambia de "Registrar" a "Actualizar"
-
-#### Flujo de Eliminación
-
-1. **Confirmación**
-
-   ```
-   Usuario selecciona producto → Botón "Eliminar" → Modal de confirmación
-   ```
-
-2. **Eliminación**
-   ```python
-   def delete_stock_product(item_code: str):
-       df_current_stock_data = read_excel_data(STOCK_FILE_PATH, SHEET_NAME, "")
-       item_index = df_current_stock_data[df_current_stock_data["item_code"] == item_code].index
-       deleted_db = df_current_stock_data.drop(item_index)
-       deleted_db.to_excel(STOCK_FILE_PATH, sheet_name=SHEET_NAME, index=False)
-   ```
+```python
+def delete_stock_product(item_code: str):
+    df_current_stock_data = read_excel_data(STOCK_FILE_PATH, SHEET_NAME, "")
+    item_index = df_current_stock_data[df_current_stock_data["item_code"] == item_code].index
+    deleted_db = df_current_stock_data.drop(item_index)
+    deleted_db.to_excel(STOCK_FILE_PATH, sheet_name=SHEET_NAME, index=False)
+```
 
 ## 3. Gestión de Ventas
 
@@ -202,19 +278,47 @@ Mostrar HomeView (pantalla principal)
 
 #### Flujo Completo de Venta
 
-1. **Inicialización del Carrito**
+```mermaid
+flowchart TD
+    A["Usuario navega a 'Generar Venta'"] --> B["CreateSellView se inicializa"]
+    B --> C["Inicializar carrito vacío"]
+    C --> D["Usuario ingresa código de producto"]
+    D --> E["Sistema busca producto por código"]
+    E --> F{"Producto encontrado?"}
+    F -->|NO| G["Mostrar error:<br/>'Producto no encontrado'"]
+    F -->|SÍ| H["Verificar stock disponible"]
+    H --> I{"Stock suficiente?"}
+    I -->|NO| J["Mostrar error:<br/>'Stock insuficiente'"]
+    I -->|SÍ| K["Validar cantidad solicitada"]
+    K --> L{"Cantidad válida?"}
+    L -->|NO| M["Mostrar error:<br/>'Cantidad inválida'"]
+    L -->|SÍ| N["Crear item del carrito<br/>{code, name, quantity, price, subtotal}"]
+    N --> O["Agregar item al carrito"]
+    O --> P["Actualizar visualización del carrito"]
+    P --> Q["Calcular total automático<br/>sum(item.subtotal)"]
+    Q --> R["¿Agregar más productos?"]
+    R -->|SÍ| D
+    R -->|NO| S{"Carrito vacío?"}
+    S -->|SÍ| T["Mostrar error:<br/>'Carrito vacío'"]
+    S -->|NO| U["Usuario presiona 'Confirmar Venta'"]
+    U --> V["Mostrar modal de confirmación"]
+    V --> W{"Usuario confirma?"}
+    W -->|NO| X["Cancelar proceso"]
+    W -->|SÍ| Y["Preparar datos de venta"]
+    Y --> Z["Registrar venta en base de datos"]
+    Z --> AA["Actualizar inventario<br/>reducir stock de productos"]
+    AA --> BB["Mostrar confirmación de venta"]
+    BB --> CC["Limpiar carrito"]
+    G --> D
+    J --> D
+    M --> D
+    T --> D
+    X --> R
+```
 
-   ```
-   Usuario navega a "Generar Venta" → CreateSellView se inicializa
-   ```
+**Detalles de implementación:**
 
-2. **Búsqueda de Productos**
-
-   ```
-   Usuario ingresa código en campo de texto → Sistema busca producto
-   ```
-
-3. **Validación de Producto**
+1. **Validación de Producto**
 
    ```python
    # Buscar producto por código
@@ -231,7 +335,7 @@ Mostrar HomeView (pantalla principal)
        return
    ```
 
-4. **Agregado al Carrito**
+2. **Agregado al Carrito**
 
    ```python
    cart_item = {
@@ -247,7 +351,7 @@ Mostrar HomeView (pantalla principal)
    self.calculate_total()
    ```
 
-5. **Cálculo Automático**
+3. **Cálculo Automático**
 
    ```python
    def calculate_total(self):
@@ -255,13 +359,8 @@ Mostrar HomeView (pantalla principal)
        self.total_label.update(f"Total: ${total:,}")
    ```
 
-6. **Confirmación de Venta**
+4. **Procesamiento Final**
 
-   ```
-   Usuario revisa carrito → Presiona "Confirmar Venta" → Modal de confirmación
-   ```
-
-7. **Procesamiento**
    ```python
    def process_sale(self):
        # Preparar datos de venta
@@ -291,6 +390,29 @@ Mostrar HomeView (pantalla principal)
 **Vista:** `ManageSellView`
 
 #### Flujo de Consulta
+
+```mermaid
+flowchart TD
+    A["Usuario navega a ManageSellView"] --> B["on_mount(): Cargar datos de ventas"]
+    B --> C["Aplicar filtro por defecto: 'hoy'"]
+    C --> D["Usuario selecciona filtro temporal"]
+    D --> E{"Tipo de filtro"}
+    E -->|hoy| F["Filtrar ventas de hoy<br/>sales_data.date == today"]
+    E -->|ayer| G["Filtrar ventas de ayer<br/>sales_data.date == yesterday"]
+    E -->|7_dias| H["Filtrar últimos 7 días<br/>sales_data.date >= week_ago"]
+    E -->|30_dias| I["Filtrar últimos 30 días<br/>sales_data.date >= month_ago"]
+    F --> J["Formatear detalles de venta"]
+    G --> J
+    H --> J
+    I --> J
+    J --> K["Parsear productos y cantidades<br/>items.split(','), quantities.split(',')"]
+    K --> L["Crear descripción legible<br/>product_name x quantity"]
+    L --> M["Calcular totales del período"]
+    M --> N["Mostrar estadísticas<br/>Total ventas y monto"]
+    N --> O["Actualizar tabla con datos filtrados"]
+```
+
+**Detalles de implementación:**
 
 1. **Carga Inicial**
 
@@ -337,6 +459,7 @@ Mostrar HomeView (pantalla principal)
    ```
 
 4. **Cálculo de Totales**
+
    ```python
    def calculate_period_totals(self, filtered_sales):
        total_sales = len(filtered_sales)
@@ -448,4 +571,136 @@ def safe_excel_operation(operation_func, *args, **kwargs):
     except Exception as e:
         logger.error(f"Error inesperado: {e}")
         return None
+```
+
+## 6. Diagrama de flujo de toda la aplicación
+
+```mermaid
+flowchart TD
+    %% System Initialization
+    A["Usuario ejecuta main.py"] --> B["Aplicación llama initialize_operations()"]
+    B --> C{"Existen archivos Excel?"}
+    C -->|NO| D["Crear archivos con datos ejemplo"]
+    C -->|SÍ| E["Cargar configuración existente"]
+    D --> F["Registrar todas las pantallas"]
+    E --> F
+    F --> G["Mostrar HomeView"]
+
+    %% Main Menu
+    G --> H{"Seleccionar módulo"}
+
+    %% Inventory Management Branch
+    H -->|Gestión de Inventario| I{"Operación de Inventario"}
+
+    %% Product Registration Flow
+    I -->|Registrar Producto| J["StockCreateView"]
+    J --> K["Llenar formulario de producto"]
+    K --> L["Generar código automático"]
+    L --> M["Validar datos"]
+    M --> N{"Datos válidos?"}
+    N -->|NO| O["Mostrar errores"]
+    N -->|SÍ| P["Guardar en Excel"]
+    P --> Q["Enviar StockDataRefreshMessage"]
+    Q --> R["Confirmación de registro"]
+
+    %% Inventory Management Flow
+    I -->|Consultar/Gestionar| S["StockManageView"]
+    S --> T["Cargar inventario completo"]
+    T --> U["Mostrar tabla interactiva"]
+    U --> V{"Acción en inventario"}
+
+    V -->|Buscar| W["Ingresar criterio búsqueda"]
+    W --> X{"Tipo de búsqueda"}
+    X -->|Por código| Y["Búsqueda exacta"]
+    X -->|Por nombre| Z["Búsqueda parcial"]
+    Y --> AA["Filtrar tabla"]
+    Z --> AA
+    AA --> U
+
+    V -->|Editar| BB["Seleccionar producto"]
+    BB --> CC["Enviar StockUpdateMessage"]
+    CC --> DD["Navegar a StockCreateView modo edición"]
+    DD --> EE["Pre-cargar datos"]
+    EE --> FF["Modificar datos"]
+    FF --> GG["Actualizar base de datos"]
+    GG --> HH["Refrescar vista"]
+
+    V -->|Eliminar| II["Confirmar eliminación"]
+    II --> JJ{"Confirmar?"}
+    JJ -->|NO| KK["Cancelar"]
+    JJ -->|SÍ| LL["delete_stock_product()"]
+    LL --> MM["Actualizar Excel"]
+    MM --> NN["Refrescar vista"]
+
+    %% Sales Management Branch
+    H -->|Gestión de Ventas| OO{"Operación de Ventas"}
+
+    %% Sales Creation Flow
+    OO -->|Generar Venta| PP["CreateSellView"]
+    PP --> QQ["Inicializar carrito vacío"]
+    QQ --> RR["Ingresar código producto"]
+    RR --> SS["Buscar producto"]
+    SS --> TT{"Producto encontrado?"}
+    TT -->|NO| UU["Error: Producto no encontrado"]
+    TT -->|SÍ| VV["Verificar stock"]
+    VV --> WW{"Stock suficiente?"}
+    WW -->|NO| XX["Error: Stock insuficiente"]
+    WW -->|SÍ| YY["Validar cantidad"]
+    YY --> ZZ{"Cantidad válida?"}
+    ZZ -->|NO| AAA["Error: Cantidad inválida"]
+    ZZ -->|SÍ| BBB["Agregar al carrito"]
+    BBB --> CCC["Calcular total"]
+    CCC --> DDD{"Agregar más productos?"}
+    DDD -->|SÍ| RR
+    DDD -->|NO| EEE{"Carrito vacío?"}
+    EEE -->|SÍ| FFF["Error: Carrito vacío"]
+    EEE -->|NO| GGG["Confirmar venta"]
+    GGG --> HHH{"Usuario confirma?"}
+    HHH -->|NO| III["Cancelar venta"]
+    HHH -->|SÍ| JJJ["Procesar venta"]
+    JJJ --> KKK["Registrar en base de datos"]
+    KKK --> LLL["Actualizar inventario"]
+    LLL --> MMM["Mostrar confirmación"]
+    MMM --> NNN["Limpiar carrito"]
+
+    %% Sales Consultation Flow
+    OO -->|Consultar Ventas| OOO["ManageSellView"]
+    OOO --> PPP["Cargar datos de ventas"]
+    PPP --> QQQ["Aplicar filtro 'hoy'"]
+    QQQ --> RRR["Usuario selecciona filtro"]
+    RRR --> SSS{"Tipo de filtro"}
+    SSS -->|hoy| TTT["Filtrar ventas de hoy"]
+    SSS -->|ayer| UUU["Filtrar ventas de ayer"]
+    SSS -->|7_dias| VVV["Filtrar últimos 7 días"]
+    SSS -->|30_dias| WWW["Filtrar últimos 30 días"]
+    TTT --> XXX["Formatear detalles"]
+    UUU --> XXX
+    VVV --> XXX
+    WWW --> XXX
+    XXX --> YYY["Parsear productos y cantidades"]
+    YYY --> ZZZ["Crear descripción legible"]
+    ZZZ --> AAAA["Calcular totales período"]
+    AAAA --> BBBB["Mostrar estadísticas"]
+    BBBB --> CCCC["Actualizar tabla filtrada"]
+
+    %% Return paths to main menu
+    O --> K
+    R --> DDDD["Continuar operaciones"]
+    KK --> U
+    NN --> U
+    HH --> U
+    UU --> RR
+    XX --> RR
+    AAA --> RR
+    FFF --> RR
+    III --> DDD
+    NNN --> EEEE["Nueva venta"]
+    CCCC --> FFFF["Continuar consultas"]
+
+    DDDD --> I
+    U --> I
+    EEEE --> OO
+    FFFF --> OO
+    I --> H
+    OO --> H
 ```

@@ -27,12 +27,14 @@ Mostrar HomeView (pantalla principal)
 **Ubicación:** `src/business/create_stock_controller.py:initialiaze_operations()`
 
 1. **Verificación de archivos**
+
    ```python
    if os.path.exists(STOCK_FILE_PATH):
        return "La base de datos ya ha sido creada"
    ```
 
 2. **Creación de datos iniciales** (si no existen)
+
    - **Productos ejemplo:** 4 productos en categoría "Alimentos y bebidas"
    - **Categorías:** 7 categorías predefinidas del sistema
    - **Ventas:** Archivo vacío listo para registros
@@ -52,25 +54,28 @@ Mostrar HomeView (pantalla principal)
 #### Flujo Paso a Paso
 
 1. **Navegación**
+
    ```
    HomeView → Botón "Registro de Inventario" → StockCreateView
    ```
 
 2. **Formulario de Registro**
+
    - Usuario selecciona categoría del dropdown
    - Ingresa nombre del producto
    - Especifica cantidad inicial
    - Define precio de compra y venta
 
 3. **Generación Automática de Código**
+
    ```python
    def create_item_code(category_name: str):
        # Extrae iniciales: "Alimentos y Bebidas" → "AYB"
        item_letters = "".join([word[0] for word in category_name.split()]).upper()
-       
+
        # Busca último consecutivo de la categoría
        filtered_data = search_data_by_field(STOCK_FILE_PATH, SHEET_NAME, "category", category_name)
-       
+
        if not filtered_data.empty:
            last_code = filtered_data["item_code"].iloc[-1]
            consecutive_num = re.findall(r"\d+", last_code)[0]
@@ -81,23 +86,25 @@ Mostrar HomeView (pantalla principal)
    ```
 
 4. **Validación de Datos**
+
    - Precios deben ser positivos
    - Cantidad debe ser válida
    - Nombre no puede estar vacío
    - Categoría debe existir
 
 5. **Persistencia**
+
    ```python
    def create_stock_product(data):
        # Crear DataFrame con nuevo producto
        df_new_product = pd.DataFrame(data)
-       
+
        # Leer datos actuales
        df_current_stock_data = read_excel_data(STOCK_FILE_PATH, SHEET_NAME, "")
-       
+
        # Combinar datos
        df_combined_data = pd.concat([df_current_stock_data, df_new_product])
-       
+
        # Guardar en Excel
        df_combined_data.to_excel(STOCK_FILE_PATH, sheet_name=SHEET_NAME, index=False)
    ```
@@ -109,11 +116,11 @@ Mostrar HomeView (pantalla principal)
 
 #### Ejemplo de Generación de Códigos
 
-| Categoría | Primera vez | Segunda vez | Tercera vez |
-|-----------|-------------|-------------|-------------|
-| Alimentos y bebidas | 1AYB | 2AYB | 3AYB |
-| Aseo personal | 1AP | 2AP | 3AP |
-| Dulcería | 1D | 2D | 3D |
+| Categoría           | Primera vez | Segunda vez | Tercera vez |
+| ------------------- | ----------- | ----------- | ----------- |
+| Alimentos y bebidas | 1AYB        | 2AYB        | 3AYB        |
+| Aseo personal       | 1AP         | 2AP         | 3AP         |
+| Dulcería            | 1D          | 2D          | 3D          |
 
 ### 2.2 Consulta y Gestión de Inventario
 
@@ -122,12 +129,14 @@ Mostrar HomeView (pantalla principal)
 #### Flujo de Consulta
 
 1. **Carga Inicial**
+
    ```python
    def on_mount(self):
        self.refresh_data()  # Carga todos los productos
    ```
 
 2. **Búsqueda**
+
    - **Por código:** Ingresa código exacto (ej: "1AYB")
    - **Por nombre:** Búsqueda parcial en nombre del producto
    - **Resultado inmediato:** Se actualiza tabla en tiempo real
@@ -140,21 +149,24 @@ Mostrar HomeView (pantalla principal)
 #### Flujo de Edición
 
 1. **Selección de Producto**
+
    ```
    Usuario selecciona fila en tabla → Presiona Enter
    ```
 
 2. **Comunicación Entre Vistas**
+
    ```python
    def on_data_table_row_selected(self, event):
        # Obtiene datos del producto seleccionado
        row_data = self.get_selected_row_data()
-       
+
        # Envía mensaje con datos para edición
        self.post_message(StockUpdateMessage(payload=row_data))
    ```
 
 3. **Navegación Automática**
+
    ```
    StockManageView → Envía StockUpdateMessage → StockCreateView (modo edición)
    ```
@@ -167,6 +179,7 @@ Mostrar HomeView (pantalla principal)
 #### Flujo de Eliminación
 
 1. **Confirmación**
+
    ```
    Usuario selecciona producto → Botón "Eliminar" → Modal de confirmación
    ```
@@ -190,24 +203,27 @@ Mostrar HomeView (pantalla principal)
 #### Flujo Completo de Venta
 
 1. **Inicialización del Carrito**
+
    ```
    Usuario navega a "Generar Venta" → CreateSellView se inicializa
    ```
 
 2. **Búsqueda de Productos**
+
    ```
    Usuario ingresa código en campo de texto → Sistema busca producto
    ```
 
 3. **Validación de Producto**
+
    ```python
    # Buscar producto por código
    product_data = search_stock("item_code", product_code)
-   
+
    if product_data.empty:
        show_error("Producto no encontrado")
        return
-   
+
    # Verificar stock disponible
    available_stock = product_data.iloc[0]["quantity"]
    if requested_quantity > available_stock:
@@ -216,6 +232,7 @@ Mostrar HomeView (pantalla principal)
    ```
 
 4. **Agregado al Carrito**
+
    ```python
    cart_item = {
        "code": product_code,
@@ -224,13 +241,14 @@ Mostrar HomeView (pantalla principal)
        "unit_price": sale_price,
        "subtotal": sale_price * requested_quantity
    }
-   
+
    self.cart_items.append(cart_item)
    self.update_cart_display()
    self.calculate_total()
    ```
 
 5. **Cálculo Automático**
+
    ```python
    def calculate_total(self):
        total = sum(item["subtotal"] for item in self.cart_items)
@@ -238,6 +256,7 @@ Mostrar HomeView (pantalla principal)
    ```
 
 6. **Confirmación de Venta**
+
    ```
    Usuario revisa carrito → Presiona "Confirmar Venta" → Modal de confirmación
    ```
@@ -251,10 +270,10 @@ Mostrar HomeView (pantalla principal)
            "quantities": ",".join([str(item["quantity"]) for item in self.cart_items]),
            "total": self.total_amount
        }
-       
+
        # Registrar venta
        sell_controller.create_sell([sale_data])
-       
+
        # Actualizar inventario
        for item in self.cart_items:
            update_stock_after_sale(item["code"], item["quantity"])
@@ -274,6 +293,7 @@ Mostrar HomeView (pantalla principal)
 #### Flujo de Consulta
 
 1. **Carga Inicial**
+
    ```python
    def on_mount(self):
        self.load_sales_data()
@@ -281,10 +301,11 @@ Mostrar HomeView (pantalla principal)
    ```
 
 2. **Filtros Temporales**
+
    ```python
    def apply_date_filter(self, filter_type: str):
        today = datetime.now().date()
-       
+
        if filter_type == "hoy":
            filtered_sales = sales_data[sales_data["date"].dt.date == today]
        elif filter_type == "ayer":
@@ -299,18 +320,19 @@ Mostrar HomeView (pantalla principal)
    ```
 
 3. **Visualización Detallada**
+
    ```python
    def format_sale_details(self, sale_row):
        # Parsear productos vendidos
        items = sale_row["items"].split(",")
        quantities = sale_row["quantities"].split(",")
-       
+
        # Crear descripción legible
        details = []
        for item_code, qty in zip(items, quantities):
            product_name = self.get_product_name(item_code)
            details.append(f"{product_name} x{qty}")
-       
+
        return " | ".join(details)
    ```
 
@@ -319,7 +341,7 @@ Mostrar HomeView (pantalla principal)
    def calculate_period_totals(self, filtered_sales):
        total_sales = len(filtered_sales)
        total_amount = filtered_sales["total"].sum()
-       
+
        self.stats_label.update(
            f"Ventas: {total_sales} | Total: ${total_amount:,}"
        )
@@ -348,12 +370,14 @@ class StockDataRefreshMessage(Message):
 #### Flujo de Comunicación
 
 1. **Envío de Mensaje**
+
    ```python
    # Desde StockManageView
    self.post_message(StockUpdateMessage(payload=product_data))
    ```
 
 2. **Recepción en Aplicación Principal**
+
    ```python
    # En MiTienditaApp
    def on_stock_update_message(self, message: StockUpdateMessage) -> None:
@@ -378,6 +402,7 @@ class StockDataRefreshMessage(Message):
 ### Validaciones en Tiempo Real
 
 #### Formulario de Productos
+
 ```python
 def validate_price_input(self, value: str) -> bool:
     try:
@@ -392,18 +417,19 @@ def on_input_changed(self, event):
 ```
 
 #### Proceso de Venta
+
 ```python
 def validate_sale_item(self, product_code: str, quantity: int) -> tuple[bool, str]:
     # Verificar que el producto existe
     product = search_stock("item_code", product_code)
     if product.empty:
         return False, "Producto no encontrado"
-    
+
     # Verificar stock disponible
     available = product.iloc[0]["quantity"]
     if quantity > available:
         return False, f"Stock insuficiente. Disponible: {available}"
-    
+
     return True, "OK"
 ```
 
@@ -423,5 +449,3 @@ def safe_excel_operation(operation_func, *args, **kwargs):
         logger.error(f"Error inesperado: {e}")
         return None
 ```
-
-Este sistema de flujos de trabajo asegura que todas las operaciones críticas del negocio se ejecuten de manera consistente y confiable, con validaciones apropiadas y manejo robusto de errores. 

@@ -107,3 +107,42 @@ NotificationModal {
   width: 100%;
   align: center middle;
 }
+
+/* Confirmation Modal Styles */
+ConfirmationModal {
+  align: center middle;
+}
+
+#confirmation-modal-box {
+  background: $surface;
+  padding: 2;
+  border: heavy $error;
+  width: 40%;
+  height: auto;
+  align: center middle;
+  layout: vertical;
+}
+
+#confirmation-message-box {
+  align: center middle;
+  height: auto;
+  width: 100%;
+}
+
+#confirmation-message {
+  align: center middle;
+  text-align: center;
+  margin: 1;
+}
+
+#confirmation-actions {
+  layout: horizontal;
+  height: auto;
+  width: 100%;
+  align: center middle;
+  margin: 1 0 0 0;
+}
+
+#confirmation-actions Button {
+  margin: 0 1;
+}

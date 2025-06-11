@@ -1,14 +1,15 @@
+from rich.text import Text
 from textual import log, on
-from textual.reactive import reactive, var
 from textual.containers import Container, Grid
+from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import DataTable, Header, Input, Label
-from rich.text import Text
 
 from src.business.create_stock_controller import read_stock, search_stock
 from src.business.stock_mapper import stock_mapper
+from src.ui.stock_update_message import StockDataRefreshMessage, StockUpdateMessage
+from src.ui.stock_delete_message import StockDeleteRequestMessage
 from src.ui.widgets.taskbar import Taskbar
-from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMessage
 
 
 class StockManageView(Screen):
@@ -54,23 +55,25 @@ class StockManageView(Screen):
         table = self.query_one(DataTable)
 
         columns = tuple(stock_mapper(product_data.columns))
-        table.add_columns(*columns, "Editar")
+        table.add_columns(*columns, "Editar", "Eliminar")
 
         for row in product_data.values:
             edit_button = Text("Editar", style="bold blue underline")
-            table.add_row(*tuple(row), edit_button)
+            delete_button = Text("Eliminar", style="bold red underline")
+            table.add_row(*tuple(row), edit_button, delete_button)
 
     def refresh_data(self):
         """Refresh the table data by reloading from the Excel file"""
         log("Refreshing stock data...")
         product_data = read_stock("")
         table = self.query_one(DataTable)
-        
+
         # Clear the table and reload data
         table.clear()
         for row in product_data.values:
             edit_button = Text("Editar", style="bold blue underline")
-            table.add_row(*tuple(row), edit_button)
+            delete_button = Text("Eliminar", style="bold red underline")
+            table.add_row(*tuple(row), edit_button, delete_button)
 
     def on_stock_data_refresh_message(self, message: StockDataRefreshMessage) -> None:
         """Handle stock data refresh message"""
@@ -87,13 +90,15 @@ class StockManageView(Screen):
             table.clear()
             for row in product_data.values:
                 edit_button = Text("Editar", style="bold blue underline")
-                table.add_row(*tuple(row), edit_button)
+                delete_button = Text("Eliminar", style="bold red underline")
+                table.add_row(*tuple(row), edit_button, delete_button)
         else:
             table = self.query_one(DataTable)
             table.clear()
             for row in filtered_table.values:
                 edit_button = Text("Editar", style="bold blue underline")
-                table.add_row(*tuple(row), edit_button)
+                delete_button = Text("Eliminar", style="bold red underline")
+                table.add_row(*tuple(row), edit_button, delete_button)
 
     # evento para buscar por nombre
     @on(Input.Changed, "#search_by_name_input")
@@ -106,35 +111,49 @@ class StockManageView(Screen):
             table.clear()
             for row in product_data.values:
                 edit_button = Text("Editar", style="bold blue underline")
-                table.add_row(*tuple(row), edit_button)
+                delete_button = Text("Eliminar", style="bold red underline")
+                table.add_row(*tuple(row), edit_button, delete_button)
         else:
             table.clear()
             for row in filtered_table.values:
                 edit_button = Text("Editar", style="bold blue underline")
-                table.add_row(*tuple(row), edit_button)
+                delete_button = Text("Eliminar", style="bold red underline")
+                table.add_row(*tuple(row), edit_button, delete_button)
 
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected) -> None:
         product_data = self.current_data
         """Handle cell selection in the stock table."""
         table = self.query_one(DataTable)
-        # Tomar el indice de la ultima columna
-        last_column_index = len(table.columns) - 1
+        # Tomar el indice de la ultima columna (Delete) y la penúltima (Edit)
+        last_column_index = len(table.columns) - 1  # Delete button
+        second_to_last_column_index = len(table.columns) - 2  # Edit button
         selected_row_data = table.get_row(event.cell_key.row_key)
-        
-        # Validar si la celda seleccionada es la ultima columna
-        if event.coordinate.column == last_column_index:
-            # Enviar el mensaje con los datos del producto
-            self.post_message(StockUpdateMessage({
-                "item_code": selected_row_data[0],
-                "category": selected_row_data[1],
-                "product_name": selected_row_data[2],
-                "quantity": selected_row_data[3],
-                "purchase_price": selected_row_data[4],
-                "sale_price": selected_row_data[5],
-                "creation_date": selected_row_data[6]
-            }))
+
+        # Validar si la celda seleccionada es la penúltima columna (Edit)
+        if event.coordinate.column == second_to_last_column_index:
+            # Enviar el mensaje con los datos del producto para edición
+            self.post_message(
+                StockUpdateMessage(
+                    {
+                        "item_code": selected_row_data[0],
+                        "category": selected_row_data[1],
+                        "product_name": selected_row_data[2],
+                        "quantity": selected_row_data[3],
+                        "purchase_price": selected_row_data[4],
+                        "sale_price": selected_row_data[5],
+                        "creation_date": selected_row_data[6],
+                    }
+                )
+            )
             self.notify(f"Editando item con código: {selected_row_data[0]}")
-
-
         
+        # Validar si la celda seleccionada es la última columna (Delete)
+        elif event.coordinate.column == last_column_index:
+            # Enviar mensaje para solicitar eliminación con confirmación
+            item_code = selected_row_data[0]
+            product_name = selected_row_data[2]
+            self.post_message(
+                StockDeleteRequestMessage(item_code, product_name)
+            )
+            self.notify(f"Solicitando eliminación de: {product_name}")

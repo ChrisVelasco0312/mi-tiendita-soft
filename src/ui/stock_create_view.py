@@ -113,6 +113,10 @@ class StockCreateView(Screen):
             self.query_one("#product_sale_price", Input).value = str(new_value["sale_price"])
             self.query_one("#product_quantity", Input).value = str(new_value["quantity"])
             self.query_one("#category", Select).value = str(new_value["category"])
+            
+            # Update the button text to indicate edit mode
+            button = self.query_one("#create_product", Button)
+            button.label = "Actualizar producto"
 
     def on_mount(self):
         """Handle screen mounting and populate fields if in edit mode"""

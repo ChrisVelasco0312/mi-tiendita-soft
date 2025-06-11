@@ -199,6 +199,9 @@ class StockCreateView(Screen):
 
                     create_stock_product(new_product_data)
                     
+                    # Post message to refresh stock data in other views
+                    self.post_message(StockDataRefreshMessage())
+                    
                     # Actualiza mensaje de éxito
                     self.app.stock_data_message = f"Producto '{product_name}' creado correctamente"
                     

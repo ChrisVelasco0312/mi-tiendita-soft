@@ -458,18 +458,6 @@ flowchart TD
        return " | ".join(details)
    ```
 
-4. **Cálculo de Totales**
-
-   ```python
-   def calculate_period_totals(self, filtered_sales):
-       total_sales = len(filtered_sales)
-       total_amount = filtered_sales["total"].sum()
-
-       self.stats_label.update(
-           f"Ventas: {total_sales} | Total: ${total_amount:,}"
-       )
-   ```
-
 ## 4. Comunicación Entre Componentes
 
 ### Sistema de Mensajes

@@ -254,25 +254,6 @@ graph TD
     I --> J[Muestra confirmación]
 ```
 
-## Patrones de Diseño Utilizados
-
-### Model-View-Controller (MVC)
-
-- **Model**: Clases en `db_operations/classes.py`
-- **View**: Componentes en `src/ui/`
-- **Controller**: Módulos en `src/business/`
-
-### Observer Pattern
-
-- Sistema de mensajes de Textual
-- `StockUpdateMessage` y `StockDataRefreshMessage`
-- Actualizaciones automáticas entre vistas
-
-### Strategy Pattern
-
-- Diferentes operaciones de base de datos
-- Controladores especializados por módulo
-
 ## Tecnologías y Dependencias
 
 ### Core Framework
@@ -290,20 +271,6 @@ graph TD
 
 - **Poetry**: Gestión de dependencias y packaging
 - **Nix**: Entorno reproducible de desarrollo
-
-## Consideraciones de Rendimiento
-
-### Optimizaciones Implementadas
-
-- **Carga lazy**: Los datos se cargan solo cuando son necesarios
-- **Caché de búsquedas**: Resultados almacenados temporalmente
-- **Operaciones batch**: Múltiples cambios en una sola escritura
-
-### Limitaciones Conocidas
-
-- **Archivos Excel**: Rendimiento se degrada con +10,000 productos
-- **Concurrencia**: Sin soporte para múltiples usuarios simultáneos
-- **Memoria**: Carga completa de datos en RAM
 
 ## Evolución Arquitectónica
 

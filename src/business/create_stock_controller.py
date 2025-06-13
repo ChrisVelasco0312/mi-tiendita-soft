@@ -64,8 +64,8 @@ def delete_stock_product(item_code: str):
 
 def create_item_code(category_name: str):
     item_letters = ""
-    for name in category_name.split():
-        item_letters += name[0]
+    for letters in category_name.split():
+        item_letters += letters[0]
 
     item_letters = item_letters.upper()
 

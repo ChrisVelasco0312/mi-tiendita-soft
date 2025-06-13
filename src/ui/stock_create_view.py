@@ -7,12 +7,17 @@ from textual.screen import Screen
 from textual.validation import ValidationResult, Validator
 from textual.widgets import Button, Header, Input, Label, Select, Static
 
-from src.business.category_controller import get_all_categories 
-from src.business.create_stock_controller import create_item_code, create_stock_product, update_stock_product
+from src.business.category_controller import get_all_categories
+from src.business.create_stock_controller import (
+    create_item_code,
+    create_stock_product,
+    update_stock_product,
+)
+from src.ui.stock_update_message import StockDataRefreshMessage
 from src.ui.widgets.taskbar import Taskbar
-from src.ui.stock_update_message import StockUpdateMessage, StockDataRefreshMessage
 
 CATEGORIES = get_all_categories()
+
 
 # validaciones personalizadas.
 class NotEmpty(Validator):
@@ -26,23 +31,22 @@ class StockCreateView(Screen):
     CSS_PATH = "styles/create-view.tcss"
 
     output_text = var("")
-    
-    current_stock_item = reactive({
-        "item_code" :"",
-        "category": "",
-        "product_name" : "",
-        "purchase_price": "",
-        "sale_price": 0,
-        "quantity": 0,
-        "creation_date": "",
-        "edit_mode": False
-    })
+
+    current_stock_item = reactive(
+        {
+            "item_code": "",
+            "category": "",
+            "product_name": "",
+            "purchase_price": "",
+            "sale_price": 0,
+            "quantity": 0,
+            "creation_date": "",
+            "edit_mode": False,
+        }
+    )
 
     # Se agregan variables reactivas para poder observar las validaciones
     item_code_valid = reactive(False)
-
-    # variable reactiva para controlar el estado desabilitado del botón
-    can_submit = reactive(False)
 
     def __init__(self):
         super().__init__(id="stock_create_view")
@@ -105,30 +109,45 @@ class StockCreateView(Screen):
         )
 
     def watch_current_stock_item(self, old_value, new_value):
-        """Watch for changes in current_stock_item reactive variable"""
+        # si el modo es edición y la vista está montada (existe)
+        # se agregan los valores recibidos por el mensaje.
         if new_value["edit_mode"] and self.is_mounted:
-            log(f"Edit mode activated for item: {new_value['item_code']}")
-            self.query_one("#product_name", Input).value = str(new_value["product_name"])
-            self.query_one("#product_purchase_price", Input).value = str(new_value["purchase_price"])
-            self.query_one("#product_sale_price", Input).value = str(new_value["sale_price"])
-            self.query_one("#product_quantity", Input).value = str(new_value["quantity"])
+            self.query_one("#product_name", Input).value = str(
+                new_value["product_name"]
+            )
+            self.query_one("#product_purchase_price", Input).value = str(
+                new_value["purchase_price"]
+            )
+            self.query_one("#product_sale_price", Input).value = str(
+                new_value["sale_price"]
+            )
+            self.query_one("#product_quantity", Input).value = str(
+                new_value["quantity"]
+            )
             self.query_one("#category", Select).value = str(new_value["category"])
-            
-            # Update the button text to indicate edit mode
+
+            # Se actualiza el botón para indicar modo edición
             button = self.query_one("#create_product", Button)
             button.label = "Actualizar producto"
 
     def on_mount(self):
-        """Handle screen mounting and populate fields if in edit mode"""
         if self.current_stock_item["edit_mode"]:
-            log(f"Mounting in edit mode for item: {self.current_stock_item['item_code']}")
-            self.query_one("#product_name", Input).value = str(self.current_stock_item["product_name"])
-            self.query_one("#product_purchase_price", Input).value = str(self.current_stock_item["purchase_price"])
-            self.query_one("#product_sale_price", Input).value = str(self.current_stock_item["sale_price"])
-            self.query_one("#product_quantity", Input).value = str(self.current_stock_item["quantity"])
-            self.query_one("#category", Select).value = str(self.current_stock_item["category"])
-            
-            # Update the button text to indicate edit mode
+            self.query_one("#product_name", Input).value = str(
+                self.current_stock_item["product_name"]
+            )
+            self.query_one("#product_purchase_price", Input).value = str(
+                self.current_stock_item["purchase_price"]
+            )
+            self.query_one("#product_sale_price", Input).value = str(
+                self.current_stock_item["sale_price"]
+            )
+            self.query_one("#product_quantity", Input).value = str(
+                self.current_stock_item["quantity"]
+            )
+            self.query_one("#category", Select).value = str(
+                self.current_stock_item["category"]
+            )
+
             button = self.query_one("#create_product", Button)
             button.label = "Actualizar producto"
 
@@ -168,7 +187,6 @@ class StockCreateView(Screen):
                 ]
             ):
                 if self.current_stock_item["edit_mode"]:
-                    # Handle edit mode - update existing product
                     update_product_data = {
                         "item_code": self.current_stock_item["item_code"],
                         "category": category,
@@ -176,16 +194,13 @@ class StockCreateView(Screen):
                         "quantity": product_quantity,
                         "purchase_price": product_purchase_price,
                         "sale_price": product_sale_price,
-                        "creation_date": datetime.now()
+                        "creation_date": datetime.now(),
                     }
-                    log(f"Update mode: {update_product_data}")
                     update_stock_product(update_product_data)
-                    
-                    # Post message to refresh stock data in other views
+
+                    # Se ejecuta mensaje para refrescar los datos en vistas
                     self.post_message(StockDataRefreshMessage())
-                    
-                    # self.app.stock_data_message = f"Producto '{product_name}' actualizado correctamente"
-                    
+
                     self.notify("Producto actualizado correctamente!")
                     self.app.pop_screen()
                 else:
@@ -202,13 +217,15 @@ class StockCreateView(Screen):
                     ]
 
                     create_stock_product(new_product_data)
-                    
+
                     # Post message to refresh stock data in other views
                     self.post_message(StockDataRefreshMessage())
-                    
+
                     # Actualiza mensaje de éxito
-                    self.app.stock_data_message = f"Producto '{product_name}' creado correctamente"
-                    
+                    self.app.stock_data_message = (
+                        f"Producto '{product_name}' creado correctamente"
+                    )
+
                     self.app.push_screen("notification_modal")
                     self.app.refresh()
                     self.clean_data()
@@ -222,10 +239,6 @@ class StockCreateView(Screen):
             log(self.output_text)
 
     def set_edit_data(self, data):
-        """Set the edit data and populate form fields"""
-        log(f"Setting edit data: {data}")
-        
-        # Convert numpy types to Python native types
         item_code = str(data.get("item_code", ""))
         category = str(data.get("category", ""))
         product_name = str(data.get("product_name", ""))
@@ -233,8 +246,7 @@ class StockCreateView(Screen):
         sale_price = int(data.get("sale_price", 0)) if data.get("sale_price") else 0
         quantity = int(data.get("quantity", 0)) if data.get("quantity") else 0
         creation_date = str(data.get("creation_date", ""))
-        
-        # Update the reactive state to indicate edit mode
+
         self.current_stock_item = {
             "item_code": item_code,
             "category": category,
@@ -243,7 +255,7 @@ class StockCreateView(Screen):
             "sale_price": sale_price,
             "quantity": quantity,
             "creation_date": creation_date,
-            "edit_mode": True
+            "edit_mode": True,
         }
 
         # Store the item code for later use
@@ -260,4 +272,3 @@ class StockCreateView(Screen):
         output_widget = self.query_one("#output_message", Static)
         output_widget.update("")
         output_widget.styles.border = None
-        item_code_valid = True

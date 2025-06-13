@@ -7,8 +7,8 @@ from textual.widgets import DataTable, Header, Input, Label
 
 from src.business.create_stock_controller import read_stock, search_stock
 from src.business.stock_mapper import stock_mapper
-from src.ui.stock_update_message import StockDataRefreshMessage, StockUpdateMessage
 from src.ui.stock_delete_message import StockDeleteRequestMessage
+from src.ui.stock_update_message import StockDataRefreshMessage, StockUpdateMessage
 from src.ui.widgets.taskbar import Taskbar
 
 
@@ -63,12 +63,12 @@ class StockManageView(Screen):
             table.add_row(*tuple(row), edit_button, delete_button)
 
     def refresh_data(self):
-        """Refresh the table data by reloading from the Excel file"""
+        # Vuelve a cargar la tabla desde el excel
         log("Refreshing stock data...")
         product_data = read_stock("")
         table = self.query_one(DataTable)
 
-        # Clear the table and reload data
+        # Borra la tabla y recarga los datos
         table.clear()
         for row in product_data.values:
             edit_button = Text("Editar", style="bold blue underline")
@@ -76,8 +76,6 @@ class StockManageView(Screen):
             table.add_row(*tuple(row), edit_button, delete_button)
 
     def on_stock_data_refresh_message(self, message: StockDataRefreshMessage) -> None:
-        """Handle stock data refresh message"""
-        log("Received stock data refresh message")
         self.refresh_data()
 
     # evento para buscar por item
@@ -122,12 +120,11 @@ class StockManageView(Screen):
 
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected) -> None:
-        product_data = self.current_data
-        """Handle cell selection in the stock table."""
+        # evento para gestional la selección de celdas
         table = self.query_one(DataTable)
         # Tomar el indice de la ultima columna (Delete) y la penúltima (Edit)
-        last_column_index = len(table.columns) - 1  # Delete button
-        second_to_last_column_index = len(table.columns) - 2  # Edit button
+        last_column_index = len(table.columns) - 1  # Botón de borrar
+        second_to_last_column_index = len(table.columns) - 2  # Botón de editar
         selected_row_data = table.get_row(event.cell_key.row_key)
 
         # Validar si la celda seleccionada es la penúltima columna (Edit)
@@ -147,13 +144,11 @@ class StockManageView(Screen):
                 )
             )
             self.notify(f"Editando item con código: {selected_row_data[0]}")
-        
+
         # Validar si la celda seleccionada es la última columna (Delete)
         elif event.coordinate.column == last_column_index:
             # Enviar mensaje para solicitar eliminación con confirmación
             item_code = selected_row_data[0]
             product_name = selected_row_data[2]
-            self.post_message(
-                StockDeleteRequestMessage(item_code, product_name)
-            )
+            self.post_message(StockDeleteRequestMessage(item_code, product_name))
             self.notify(f"Solicitando eliminación de: {product_name}")
